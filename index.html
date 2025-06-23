@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>mrbogdi - home</title>
   <script type="module" src="https://unpkg.com/@fluentui/web-components"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
       font-family: 'Segoe UI', sans-serif;
@@ -22,14 +24,23 @@
     fluent-card {
       padding: 1rem;
       margin-bottom: 1rem;
+      max-width: 500px;
     }
     aside {
-      width: 250px;
+      width: 60px;
       background-color: white;
       border-right: 1px solid #ccc;
       display: flex;
       flex-direction: column;
-      padding: 1rem;
+      align-items: center;
+      padding: 1rem 0;
+    }
+    aside fluent-button {
+      width: auto;
+      height: 40px;
+      margin-bottom: 0.5rem;
+      padding: 0;
+      min-width: 40px;
     }
     main {
       flex-grow: 1;
@@ -37,8 +48,7 @@
       padding: 1rem;
     }
     fluent-button {
-      width: 100%;
-      margin-bottom: 0.5rem;
+      margin-top: 0.5rem;
     }
     table {
       width: 100%;
@@ -57,6 +67,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      margin-bottom: 1rem;
     }
     fluent-text-field {
       display: block;
@@ -76,18 +87,38 @@
       align-items: center;
       justify-content: center;
     }
+    #dashboardCard {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .stat-box {
+      background: #fff;
+      border: 1px solid #ddd;
+      padding: 1rem;
+      border-radius: 8px;
+      flex: 1 1 120px;
+      text-align: center;
+    }
+    #chartContainer {
+      margin-top: 2rem;
+      background: white;
+      padding: 1rem;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+    }
   </style>
 </head>
 <body>
   <aside>
-    <h2>CRM Rapid</h2>
-    <fluent-button onclick="switchTab('clienti')">📇 Clienți</fluent-button>
-    <fluent-button onclick="switchTab('contracte')">📄 Contracte</fluent-button>
-    <fluent-button onclick="switchTab('abonamente')">📦 Abonamente</fluent-button>
-    <fluent-button onclick="switchTab('hr')">👥 Tracking HR</fluent-button>
-    <fluent-button appearance="accent" onclick="exportData()">⬇️ Export</fluent-button>
-    <fluent-button onclick="importData()">⬆️ Import</fluent-button>
-    <fluent-button appearance="stealth" onclick="clearData()">🗑️ Reset</fluent-button>
+    <fluent-button title="Clienți" onclick="switchTab('clienti')">📇</fluent-button>
+    <fluent-button title="Contracte" onclick="switchTab('contracte')">📄</fluent-button>
+    <fluent-button title="Abonamente" onclick="switchTab('abonamente')">📦</fluent-button>
+    <fluent-button title="Tracking HR" onclick="switchTab('hr')">👥</fluent-button>
+    <fluent-button title="Dashboard" onclick="switchTab('dashboard')">📊</fluent-button>
+    <fluent-button title="Export" appearance="accent" onclick="exportData()">⬇️</fluent-button>
+    <fluent-button title="Import" onclick="importData()">⬆️</fluent-button>
+    <fluent-button title="Reset" appearance="stealth" onclick="clearData()">🗑️</fluent-button>
   </aside>
 
   <main>
@@ -102,66 +133,28 @@
       <fluent-button onclick="validatePin()">Accesează</fluent-button>
     </div>
 
-    <section id="clientiTab">
+    <section id="dashboardTab" class="hidden">
       <fluent-card>
-        <h3>Adaugă client</h3>
-        <fluent-text-field id="clientNume" placeholder="Nume"></fluent-text-field>
-        <fluent-text-field id="clientEmail" placeholder="Email"></fluent-text-field>
-        <fluent-button onclick="addItem('clienti')">Adaugă</fluent-button>
+        <h3>Dashboard sumar</h3>
+        <div id="dashboardCard">
+          <div class="stat-box"><strong>Clienți</strong><br><span id="countClienti">0</span></div>
+          <div class="stat-box"><strong>Contracte</strong><br><span id="countContracte">0</span></div>
+          <div class="stat-box"><strong>Abonamente</strong><br><span id="countAbonamente">0</span></div>
+          <div class="stat-box"><strong>HR</strong><br><span id="countHr">0</span></div>
+        </div>
       </fluent-card>
-      <fluent-card>
-        <h3>Listă clienți</h3>
-        <table id="clientiTable"></table>
-      </fluent-card>
-    </section>
-
-    <section id="contracteTab" class="hidden">
-      <fluent-card>
-        <h3>Adaugă contract</h3>
-        <fluent-text-field id="contractClient" placeholder="Client"></fluent-text-field>
-        <fluent-text-field id="contractNr" placeholder="Nr. Contract"></fluent-text-field>
-        <fluent-text-field id="contractStart" placeholder="Dată start"></fluent-text-field>
-        <fluent-text-field id="contractSfarsit" placeholder="Dată sfârșit"></fluent-text-field>
-        <fluent-button onclick="addItem('contracte')">Adaugă</fluent-button>
-      </fluent-card>
-      <fluent-card>
-        <h3>Listă contracte</h3>
-        <table id="contracteTable"></table>
-      </fluent-card>
-    </section>
-
-    <section id="abonamenteTab" class="hidden">
-      <fluent-card>
-        <h3>Adaugă abonament</h3>
-        <fluent-text-field id="abonamentTip" placeholder="Tip abonament"></fluent-text-field>
-        <fluent-text-field id="abonamentVal" placeholder="Valabilitate"></fluent-text-field>
-        <fluent-button onclick="addItem('abonamente')">Adaugă</fluent-button>
-      </fluent-card>
-      <fluent-card>
-        <h3>Listă abonamente</h3>
-        <table id="abonamenteTable"></table>
-      </fluent-card>
-    </section>
-
-    <section id="hrTab" class="hidden">
-      <fluent-card>
-        <h3>Adaugă candidat</h3>
-        <fluent-text-field id="hrNume" placeholder="Nume candidat"></fluent-text-field>
-        <fluent-text-field id="hrPozitie" placeholder="Pozitie aplicată"></fluent-text-field>
-        <fluent-button onclick="addItem('hr')">Adaugă</fluent-button>
-      </fluent-card>
-      <fluent-card>
-        <h3>Listă candidați</h3>
-        <table id="hrTable"></table>
-      </fluent-card>
+      <div id="chartContainer">
+        <canvas id="crmChart" width="400" height="200"></canvas>
+      </div>
     </section>
   </main>
 
   <input type="file" id="importFile" class="hidden" onchange="handleImport(event)" />
 
   <script>
-    const tabs = ['clienti', 'contracte', 'abonamente', 'hr'];
+    const tabs = ['clienti', 'contracte', 'abonamente', 'hr', 'dashboard'];
     const pinKey = 'crm_pin';
+    const encryptionKey = 'crm2025!secure'; // simplificat pt demo
 
     let data = {
       clienti: [],
@@ -170,72 +163,52 @@
       hr: []
     };
 
-    function switchTab(tab) {
-      tabs.forEach(t => {
-        document.getElementById(t + 'Tab').classList.add('hidden');
-      });
-      document.getElementById(tab + 'Tab').classList.remove('hidden');
-      document.getElementById('sectionTitle').innerText = tab.charAt(0).toUpperCase() + tab.slice(1);
-      renderTable(tab);
+    function encryptData(obj) {
+      return CryptoJS.AES.encrypt(JSON.stringify(obj), encryptionKey).toString();
     }
 
-    function addItem(tab) {
-      const fields = {
-        clienti: ['clientNume', 'clientEmail'],
-        contracte: ['contractClient', 'contractNr', 'contractStart', 'contractSfarsit'],
-        abonamente: ['abonamentTip', 'abonamentVal'],
-        hr: ['hrNume', 'hrPozitie']
-      };
-      const values = fields[tab].map(id => document.getElementById(id).value.trim());
-      if (values.some(v => !v)) return alert('Completează toate câmpurile.');
-      data[tab].push(values);
-      saveData();
-      renderTable(tab);
-      fields[tab].forEach(id => document.getElementById(id).value = '');
+    function decryptData(ciphertext) {
+      try {
+        const bytes = CryptoJS.AES.decrypt(ciphertext, encryptionKey);
+        return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+      } catch {
+        return null;
+      }
     }
 
-    function renderTable(tab) {
-      const table = document.getElementById(tab + 'Table');
-      table.innerHTML = '';
-      if (data[tab].length === 0) return table.innerHTML = '<tr><td colspan="5">Nimic de afișat.</td></tr>';
-      data[tab].forEach((row, idx) => {
-        const tr = document.createElement('tr');
-        row.forEach(cell => {
-          const td = document.createElement('td');
-          td.textContent = cell;
-          tr.appendChild(td);
-        });
-        const tdDel = document.createElement('td');
-        tdDel.innerHTML = `<fluent-button appearance='stealth' onclick="deleteItem('${tab}', ${idx})">Șterge</fluent-button>`;
-        tr.appendChild(tdDel);
-        table.appendChild(tr);
-      });
+    function validatePin() {
+      const input = document.getElementById('pinInput').value;
+      if (input.length >= 4) {
+        const stored = localStorage.getItem(pinKey);
+        if (!stored) {
+          localStorage.setItem(pinKey, CryptoJS.SHA256(input).toString());
+          saveData();
+          unlockApp();
+        } else if (stored === CryptoJS.SHA256(input).toString()) {
+          const saved = decryptData(localStorage.getItem('crm_data'));
+          if (saved) data = saved;
+          unlockApp();
+        } else {
+          alert('PIN greșit');
+        }
+      }
     }
 
-    function deleteItem(tab, idx) {
-      if (!confirm('Ești sigur că vrei să ștergi acest element?')) return;
-      data[tab].splice(idx, 1);
-      saveData();
-      renderTable(tab);
+    function unlockApp() {
+      document.getElementById('pinScreen').style.display = 'none';
+      switchTab('dashboard');
+      renderChart();
     }
 
     function saveData() {
-      localStorage.setItem('crm_data', JSON.stringify(data));
-      document.getElementById('status').innerText = '✔️ Salvat';
-      setTimeout(() => document.getElementById('status').innerText = '', 1500);
-    }
-
-    function loadData() {
-      const saved = localStorage.getItem('crm_data');
-      if (saved) data = JSON.parse(saved);
+      localStorage.setItem('crm_data', encryptData(data));
     }
 
     function exportData() {
-      const blob = new Blob([JSON.stringify(data)], {type: 'application/json'});
-      const url = URL.createObjectURL(blob);
+      const blob = new Blob([encryptData(data)], { type: 'text/plain' });
       const a = document.createElement('a');
-      a.href = url;
-      a.download = 'crm_backup.json';
+      a.href = URL.createObjectURL(blob);
+      a.download = 'crm_data_secure.aes';
       a.click();
     }
 
@@ -243,44 +216,73 @@
       document.getElementById('importFile').click();
     }
 
-    function handleImport(e) {
-      const file = e.target.files[0];
+    function handleImport(event) {
+      const file = event.target.files[0];
       if (!file) return;
       const reader = new FileReader();
-      reader.onload = function(event) {
-        data = JSON.parse(event.target.result);
-        saveData();
-        switchTab('clienti');
+      reader.onload = function(e) {
+        const result = decryptData(e.target.result);
+        if (result) {
+          data = result;
+          saveData();
+          switchTab('dashboard');
+        } else {
+          alert('Date corupte sau PIN greșit');
+        }
       };
       reader.readAsText(file);
     }
 
     function clearData() {
-      if (confirm('Sigur vrei să ștergi toate datele?')) {
+      if (confirm('Ești sigur că vrei să resetezi toate datele?')) {
         localStorage.removeItem('crm_data');
-        location.reload();
+        data = { clienti: [], contracte: [], abonamente: [], hr: [] };
+        saveData();
+        switchTab('dashboard');
       }
     }
 
-    function validatePin() {
-      const pin = document.getElementById('pinInput').value;
-      if (!pin || pin.length < 4) return alert('PIN invalid.');
-      const stored = localStorage.getItem(pinKey);
-      if (!stored) {
-        localStorage.setItem(pinKey, pin);
-        alert('PIN setat.');
-        grantAccess();
-      } else if (stored === pin) {
-        grantAccess();
-      } else {
-        alert('PIN incorect!');
-      }
+    function switchTab(tab) {
+      tabs.forEach(t => {
+        const el = document.getElementById(t + 'Tab');
+        if (el) el.classList.add('hidden');
+      });
+      const current = document.getElementById(tab + 'Tab');
+      if (current) current.classList.remove('hidden');
+      document.getElementById('sectionTitle').innerText = tab.charAt(0).toUpperCase() + tab.slice(1);
+      updateDashboard();
+      renderChart();
     }
 
-    function grantAccess() {
-      document.getElementById('pinScreen').style.display = 'none';
-      loadData();
-      switchTab('clienti');
+    function updateDashboard() {
+      document.getElementById('countClienti').innerText = data.clienti.length;
+      document.getElementById('countContracte').innerText = data.contracte.length;
+      document.getElementById('countAbonamente').innerText = data.abonamente.length;
+      document.getElementById('countHr').innerText = data.hr.length;
+    }
+
+    function renderChart() {
+      if (!document.getElementById('crmChart')) return;
+      const ctx = document.getElementById('crmChart').getContext('2d');
+      if (window.crmChartInstance) window.crmChartInstance.destroy();
+      window.crmChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Clienți', 'Contracte', 'Abonamente', 'HR'],
+          datasets: [{
+            label: 'Înregistrări',
+            data: [data.clienti.length, data.contracte.length, data.abonamente.length, data.hr.length],
+            backgroundColor: ['#0078D4', '#107C10', '#E81123', '#FFB900']
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: false },
+            title: { display: true, text: 'Statistici CRM' }
+          }
+        }
+      });
     }
   </script>
 </body>
