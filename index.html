@@ -3,64 +3,73 @@
 <head>
   <meta charset="UTF-8" />
   <title>🔧 Maintenance</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <script type="module" src="https://unpkg.com/@fluentui/web-components"></script>
   <style>
     body {
       margin: 0;
-      font-family: "Segoe UI", sans-serif;
-      background: linear-gradient(135deg, #f3f3f3 0%, #e1e1e1 100%);
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: #f3f3f3;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
       color: #333;
-    }
-    #box {
-      text-align: center;
-      background: white;
-      padding: 3rem 3.5rem;
-      border-radius: 16px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.12);
-      max-width: 420px;
-      width: 100%;
       user-select: none;
     }
-    h1 {
-      font-size: 1.9rem;
-      font-weight: 700;
-      margin-bottom: 0.8rem;
-      color: #0078d4;
+    #container {
+      background: #fff;
+      padding: 3.5rem 4rem 3.5rem 4rem;
+      border-radius: 14px;
+      box-shadow: 0 14px 30px rgb(0 0 0 / 0.12);
+      max-width: 450px;
+      width: 100%;
+      text-align: center;
+      box-sizing: border-box;
+      position: relative;
     }
-    p {
+    h1 {
+      color: #0078d4;
+      font-weight: 700;
+      font-size: 2rem;
+      margin-bottom: 0.6rem;
+      user-select: text;
+    }
+    p.description {
       font-size: 1rem;
+      margin-bottom: 1.5rem;
       color: #444;
-      margin: 0.2rem 0 1.5rem;
+      user-select: text;
     }
     #countdown {
-      font-size: 2.5rem;
+      font-size: 2.7rem;
       font-weight: 700;
+      letter-spacing: 0.12em;
       color: #0078d4;
-      margin: 1rem 0 2rem;
-      letter-spacing: 0.1em;
+      margin-bottom: 2rem;
       font-feature-settings: "tnum";
+      user-select: text;
     }
     fluent-text-field {
       width: 100%;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.8rem;
     }
     fluent-button {
       width: 100%;
       font-weight: 600;
       font-size: 1.1rem;
-      padding: 0.85rem 0;
-      user-select: none;
+      padding: 0.9rem 0;
       border-radius: 6px;
-      transition: background-color 0.3s ease;
       cursor: pointer;
+      transition: background-color 0.3s ease;
       box-shadow: 0 0 0 1px transparent;
       outline-offset: 2px;
       outline-color: transparent;
+      user-select: none;
+      margin-bottom: 0.7rem;
+    }
+    fluent-button[hidden] {
+      display: none !important;
     }
     fluent-button[disabled] {
       opacity: 0.5;
@@ -69,73 +78,103 @@
     fluent-button:hover:not([disabled]) {
       background-color: #005a9e;
       color: white;
-      box-shadow: 0 0 6px #004578;
+      box-shadow: 0 0 8px #004578;
     }
     #errorMsg {
-      font-size: 0.9rem;
       color: #d13438;
+      font-size: 0.9rem;
       min-height: 1.4rem;
-      margin-top: 0.4rem;
+      margin-bottom: 1rem;
       user-select: none;
       transition: opacity 0.3s ease;
     }
-    #resetPin {
-      margin-top: 0.5rem;
-      font-size: 0.9rem;
-      color: #0078d4;
+    #contactWrapper {
+      position: relative;
+      display: inline-block;
+      width: 100%;
+      text-align: center;
+    }
+    #contactBtn {
+      width: auto;
+      padding: 0.45rem 1.1rem;
+      font-size: 1rem;
+      border-radius: 6px;
+      background: #e1e1e1;
+      color: #333;
+      box-shadow: none;
+      transition: background-color 0.3s ease;
       cursor: pointer;
       user-select: none;
-      text-decoration: underline;
-      display: inline-block;
     }
-    #resetPin:hover {
-      color: #005a9e;
+    #contactBtn:hover {
+      background-color: #c7c7c7;
+      color: #0078d4;
     }
-    #loadingSpinner {
-      display: inline-block;
-      width: 16px;
-      height: 16px;
-      border: 3px solid #0078d4;
-      border-radius: 50%;
-      border-top-color: transparent;
-      animation: spin 1s linear infinite;
-      vertical-align: middle;
-      margin-left: 8px;
+    #contactTooltip {
       visibility: hidden;
+      background-color: #333;
+      color: #fff;
+      text-align: center;
+      border-radius: 5px;
+      padding: 6px 10px;
+      position: absolute;
+      z-index: 10;
+      bottom: 110%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 130px;
+      font-size: 0.85rem;
+      box-shadow: 0 0 8px rgba(0,0,0,0.3);
+      user-select: none;
     }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
+    #contactWrapper:hover #contactTooltip {
+      visibility: visible;
     }
   </style>
 </head>
 <body>
-  <div id="box" role="main" aria-labelledby="mainTitle" aria-describedby="desc">
-    <h1 id="mainTitle" tabindex="0">🔧 Maintenance în desfășurare</h1>
-    <p id="desc">Platforma este temporar indisponibilă pentru îmbunătățiri.</p>
+  <div id="container" role="main" aria-labelledby="mainTitle" aria-describedby="desc">
+    <h1 id="mainTitle">🔧 Maintenance în desfășurare</h1>
+    <p id="desc" class="description">Platforma este temporar indisponibilă pentru îmbunătățiri.</p>
     <div id="countdown" aria-live="polite" aria-atomic="true">48:00:00</div>
 
-    <p>Ai acces admin? Introdu codul PIN:</p>
-    <fluent-text-field id="adminPin" type="password" placeholder="PIN admin" aria-label="Introdu PIN admin" inputmode="numeric" maxlength="6" ></fluent-text-field>
-    <fluent-button appearance="accent" id="accessBtn" aria-describedby="errorMsg" disabled>
-      Accesează platforma
-      <span id="loadingSpinner"></span>
-    </fluent-button>
-    <div id="errorMsg" role="alert" aria-live="assertive"></div>
-    <div id="resetPin" tabindex="0" role="button" aria-label="Resetează câmpul PIN">Reset PIN</div>
+    <fluent-text-field
+      id="pinInput"
+      type="password"
+      placeholder="Introdu PIN admin"
+      aria-label="Introdu PIN admin"
+      inputmode="numeric"
+      maxlength="6"
+      autocomplete="off"
+    ></fluent-text-field>
 
-    <p style="margin-top: 2rem; font-size: 0.9rem; color: #666;">
-      Vă mulțumim pentru înțelegere.
-    </p>
+    <fluent-button
+      id="submitBtn"
+      appearance="accent"
+      hidden
+      aria-describedby="errorMsg"
+      disabled
+    >
+      Accesează platforma
+    </fluent-button>
+
+    <div id="errorMsg" role="alert" aria-live="assertive"></div>
+
+    <div id="contactWrapper">
+      <fluent-button id="contactBtn" appearance="neutral" tabindex="0" aria-describedby="contactTooltip">
+        Contact
+      </fluent-button>
+      <div id="contactTooltip" role="tooltip">În lucru</div>
+    </div>
   </div>
 
   <script>
-    let secondsLeft = 48 * 60 * 60;
     const countdownEl = document.getElementById("countdown");
+    const pinInput = document.getElementById("pinInput");
+    const submitBtn = document.getElementById("submitBtn");
     const errorMsg = document.getElementById("errorMsg");
-    const pinField = document.getElementById("adminPin");
-    const accessBtn = document.getElementById("accessBtn");
-    const loadingSpinner = document.getElementById("loadingSpinner");
-    const resetPin = document.getElementById("resetPin");
+
+    let secondsLeft = 48 * 60 * 60;
 
     function updateCountdown() {
       const h = String(Math.floor(secondsLeft / 3600)).padStart(2, '0');
@@ -148,47 +187,37 @@
     updateCountdown();
 
     function validatePin() {
-      errorMsg.textContent = '';
-      loadingSpinner.style.visibility = 'visible';
-      accessBtn.disabled = true;
-      setTimeout(() => {
-        const pin = pinField.value.trim();
-        if (pin === '4455') {
-          window.location.href = "maintenance.html";
-        } else {
-          errorMsg.textContent = 'PIN greșit, încearcă din nou.';
-          pinField.focus();
-          loadingSpinner.style.visibility = 'hidden';
-          accessBtn.disabled = false;
-        }
-      }, 800); // simulare delay UX
+      errorMsg.textContent = "";
+      const pin = pinInput.value.trim();
+      if (pin === "4455") {
+        window.location.href = "maintenance.html";
+      } else {
+        errorMsg.textContent = "PIN greșit, încearcă din nou.";
+        submitBtn.disabled = false;
+      }
     }
 
-    pinField.addEventListener('input', () => {
-      errorMsg.textContent = '';
-      accessBtn.disabled = pinField.value.trim().length < 4;
-      loadingSpinner.style.visibility = 'hidden';
-    });
-
-    accessBtn.addEventListener('click', validatePin);
-
-    pinField.addEventListener('keydown', e => {
-      if(e.key === 'Enter' && !accessBtn.disabled) {
-        validatePin();
+    pinInput.addEventListener("input", () => {
+      errorMsg.textContent = "";
+      const val = pinInput.value.trim();
+      if (val.length >= 4) {
+        submitBtn.hidden = false;
+        submitBtn.disabled = false;
+      } else {
+        submitBtn.hidden = true;
+        submitBtn.disabled = true;
       }
     });
 
-    resetPin.addEventListener('click', () => {
-      pinField.value = '';
-      errorMsg.textContent = '';
-      accessBtn.disabled = true;
-      loadingSpinner.style.visibility = 'hidden';
-      pinField.focus();
+    submitBtn.addEventListener("click", () => {
+      submitBtn.disabled = true; // previne multiple click-uri
+      validatePin();
     });
-    resetPin.addEventListener('keydown', e => {
-      if(e.key === 'Enter' || e.key === ' ') {
+
+    pinInput.addEventListener("keydown", e => {
+      if (e.key === "Enter" && !submitBtn.disabled) {
         e.preventDefault();
-        resetPin.click();
+        validatePin();
       }
     });
   </script>
