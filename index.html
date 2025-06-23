@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <title>🔧 Maintenance</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script type="module" src="https://unpkg.com/@fluentui/web-components"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Segoe UI", sans-serif;
+      background: linear-gradient(to bottom right, #f3f3f3, #e1e1e1);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: #333;
+    }
+
+    #box {
+      text-align: center;
+      background: white;
+      padding: 2.5rem 3rem;
+      border-radius: 16px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+      max-width: 420px;
+      width: 100%;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+    }
+
+    #countdown {
+      font-size: 2.2rem;
+      color: #0078d4;
+      margin: 1rem 0;
+      font-weight: 600;
+    }
+
+    fluent-text-field {
+      margin-top: 1rem;
+      width: 100%;
+    }
+
+    fluent-button {
+      margin-top: 1rem;
+      width: 100%;
+    }
+
+    p {
+      font-size: 0.95rem;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <div id="box">
+    <h1>🔧 Maintenance în desfășurare</h1>
+    <p>Platforma este temporar indisponibilă pentru îmbunătățiri.</p>
+    <div id="countdown">48:00:00</div>
+
+    <p>Ai acces admin? Introdu codul PIN:</p>
+    <fluent-text-field id="adminPin" type="password" placeholder="PIN admin"></fluent-text-field>
+    <fluent-button appearance="accent" onclick="tryAccess()">Accesează platforma</fluent-button>
+
+    <p style="margin-top: 2rem;">Vă mulțumim pentru înțelegere.</p>
+  </div>
+
+  <script>
+    // Countdown 48h
+    let secondsLeft = 48 * 60 * 60;
+    const countdownEl = document.getElementById("countdown");
+
+    function updateCountdown() {
+      const h = String(Math.floor(secondsLeft / 3600)).padStart(2, '0');
+      const m = String(Math.floor((secondsLeft % 3600) / 60)).padStart(2, '0');
+      const s = String(secondsLeft % 60).padStart(2, '0');
+      countdownEl.textContent = `${h}:${m}:${s}`;
+      if (secondsLeft > 0) secondsLeft--;
+    }
+
+    setInterval(updateCountdown, 1000);
+    updateCountdown();
+
+    // PIN check
+    function tryAccess() {
+      const pin = document.getElementById("adminPin").value.trim();
+      const correctPin = "1234"; // Schimbă cu un PIN real și sigur
+      if (pin === correctPin) {
+        window.location.href = "main.html";
+      } else {
+        alert("PIN greșit!");
+      }
+    }
+  </script>
+</body>
+</html>
