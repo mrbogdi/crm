@@ -3,638 +3,862 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>mrbogdi - home</title>
-
-<!-- Fluent UI Web Components -->
-<script type="module" src="https://unpkg.com/@fluentui/web-components@latest/dist/fluent-components.min.js"></script>
-
+<title>mr_bogdi - dashboard</title>
+<!-- Fluent UI Web Components 2.0+ -->
+<script type="module" src="https://unpkg.com/@fluentui/web-components@2.9.0/dist/fluent-components.min.js"></script>
 <!-- CryptoJS AES -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js" integrity="sha512-GOJEixx70jjrfV5FVknlVbMT1W9Kv5ZvK4Zsm6Ha7TJWCE5AXv9dE44vqVtDb9L7KOPJz1XuzFwLPF0az1w0Uw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
-<!-- Chart.js for advanced charts -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+<!-- Chart.js 4.x -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.min.js"></script>
 
 <style>
-  /* Reset & base */
   :root {
-    --primary-color: #0078D4;
-    --success-color: #4caf50;
-    --error-color: #e81123;
-    --background-light: #f3f3f3;
-    --background-dark: #1e1e1e;
-    --text-light: #333;
-    --text-dark: #f3f3f3;
+    --brand-blue: #0078d4;
+    --brand-green: #107c10;
+    --brand-red: #e81123;
+    --brand-yellow: #ffb900;
+    --bg-light: #f3f3f3;
+    --bg-dark: #1e1e1e;
+    --text-light: #ffffff;
+    --text-dark: #202020;
+    --shadow: rgba(0,0,0,0.15);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    --fluent-accent-fill-rest: var(--primary-color);
   }
-  html, body {
-    margin: 0; padding: 0;
-    height: 100%;
-    background-color: var(--background-light);
-    color: var(--text-light);
-    display: flex;
-    font-size: 16px;
-  }
+  /* Dark mode */
   body.dark {
-    background-color: var(--background-dark);
+    background: var(--bg-dark);
+    color: var(--text-light);
+  }
+  body {
+    margin: 0; display: flex; height: 100vh; overflow: hidden;
+    background: var(--bg-light);
     color: var(--text-dark);
   }
-
-  /* Layout */
-  aside {
+  #sidebar {
     background: white;
-    border-right: 1px solid #ccc;
-    width: 72px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    width: 65px;
+    box-shadow: 2px 0 5px var(--shadow);
+    display: flex; flex-direction: column; align-items: center;
     padding: 1rem 0;
-    box-sizing: border-box;
-    position: relative;
+    user-select: none;
+    transition: width 0.3s ease;
   }
-  body.dark aside {
+  body.dark #sidebar {
     background: #252525;
-    border-color: #444;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.8);
   }
-  aside fluent-button {
-    width: 44px;
-    height: 44px;
-    margin: 0.4rem 0;
-    font-size: 22px;
+  #sidebar.expanded {
+    width: 250px;
   }
-  aside #encryptedInfo {
+  #sidebar .logo {
+    font-weight: 700; font-size: 1.2rem; margin-bottom: 1rem;
+    color: var(--brand-blue);
+    white-space: nowrap;
+    user-select: none;
+  }
+  body.dark #sidebar .logo {
+    color: #39a0ff;
+  }
+  #sidebar fluent-button {
+    width: 40px; height: 40px; margin-bottom: 0.7rem;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem;
+    --background-color: transparent;
+    --foreground-color: var(--brand-blue);
+    transition: all 0.2s ease;
+  }
+  body.dark #sidebar fluent-button {
+    --foreground-color: #82c7ff;
+  }
+  #sidebar fluent-button:hover,
+  #sidebar fluent-button[aria-current="true"] {
+    --background-color: var(--brand-blue);
+    --foreground-color: white;
+    cursor: pointer;
+  }
+  #sidebar.expanded fluent-button {
+    width: auto;
+    padding: 0 1rem;
+    font-size: 1rem;
+    justify-content: flex-start;
+  }
+  #sidebar .toggle-menu {
+    margin-top: auto;
+    margin-bottom: 1rem;
+    font-size: 1.3rem;
+    color: var(--brand-green);
+    cursor: pointer;
+  }
+  body.dark #sidebar .toggle-menu {
+    color: #7ed57e;
+  }
+  #footerStatus {
+    margin-top: auto;
+    padding: 0.4rem 1rem;
+    font-size: 0.8rem;
+    color: #107c10;
+    user-select: none;
+    white-space: nowrap;
+    display: flex; align-items: center; gap: 0.4rem;
+  }
+  #footerStatus:hover .tooltip {
+    visibility: visible; opacity: 1;
+  }
+  .tooltip {
+    background: #107c10;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
     position: absolute;
-    bottom: 1rem;
-    left: 50%;
-    transform: translateX(-50%);
+    bottom: 3rem;
+    left: 1rem;
     font-size: 0.75rem;
-    font-weight: 600;
-    color: var(--success-color);
-    cursor: help;
-    display: flex;
-    align-items: center;
-    gap: 0.3rem;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    white-space: nowrap;
   }
-  main {
+
+  #mainContent {
     flex-grow: 1;
+    background: var(--bg-light);
     overflow-y: auto;
     padding: 1rem 2rem;
-    min-width: 0;
+    transition: background-color 0.3s ease;
   }
-  h2 {
-    margin: 0 0 1rem 0;
+  body.dark #mainContent {
+    background: #121212;
+  }
+  header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+  }
+  header h1 {
+    margin: 0;
     font-weight: 700;
+    color: var(--brand-blue);
   }
-  .top-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
+  body.dark header h1 {
+    color: #39a0ff;
   }
-  /* Tabs and content */
-  .tabcontent {
-    display: none;
+  #darkModeToggle {
+    cursor: pointer;
   }
-  .tabcontent.active {
-    display: block;
+  .section {
+    margin-bottom: 2rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px var(--shadow);
+    padding: 1rem 2rem;
+    transition: background-color 0.3s ease;
   }
-  fluent-text-field, fluent-select, fluent-button {
-    width: 100%;
-    max-width: 400px;
-    margin-bottom: 1rem;
+  body.dark .section {
+    background: #222;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.8);
   }
-  fluent-text-field[required]::part(control) {
-    border-color: var(--primary-color);
+  .section h2 {
+    margin-top: 0;
+    font-weight: 600;
+    color: var(--brand-blue);
+  }
+  body.dark .section h2 {
+    color: #39a0ff;
   }
 
+  /* Tables */
   table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 0.5rem;
+    margin-top: 1rem;
   }
   th, td {
+    border: 1px solid #ccc;
+    padding: 0.5rem 0.75rem;
     text-align: left;
-    padding: 0.6rem 0.75rem;
-    border-bottom: 1px solid #ddd;
-    vertical-align: middle;
   }
   body.dark th, body.dark td {
     border-color: #444;
   }
   th {
-    background-color: var(--primary-color);
+    background: var(--brand-blue);
     color: white;
     font-weight: 600;
   }
   body.dark th {
-    background-color: #106ebe;
+    background: #39a0ff;
+    color: #121212;
   }
-  tr:hover {
-    background-color: #f0f7ff;
+  tr:nth-child(even) {
+    background: #f9f9f9;
   }
-  body.dark tr:hover {
-    background-color: #2a3b57;
+  body.dark tr:nth-child(even) {
+    background: #2a2a2a;
   }
 
-  /* License cards */
-  .license-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
+  /* Forms */
+  form {
+    display: flex; flex-wrap: wrap; gap: 1rem;
     margin-top: 1rem;
   }
-  .license-card {
-    background: var(--background-light);
-    border-radius: 8px;
-    padding: 1rem 1.5rem;
-    box-shadow: 0 2px 6px rgb(0 0 0 / 0.15);
+  form fluent-text-field,
+  form fluent-select {
     flex: 1 1 200px;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    font-weight: 600;
-    color: var(--text-light);
-    user-select: none;
+    min-width: 200px;
   }
-  body.dark .license-card {
-    background: #333;
-    color: var(--text-dark);
-    box-shadow: 0 2px 6px rgb(255 255 255 / 0.1);
-  }
-  .license-card svg {
-    width: 24px;
-    height: 24px;
-    fill: var(--success-color);
+  form fluent-button {
+    align-self: flex-end;
   }
 
-  /* Tooltip */
-  .tooltip {
-    position: relative;
-    display: inline-block;
+  /* Tooltip icon style */
+  .aes-icon {
+    width: 18px;
+    height: 18px;
+    fill: var(--brand-green);
   }
-  .tooltip .tooltiptext {
-    visibility: hidden;
-    width: 220px;
-    background-color: #333;
-    color: #fff;
-    text-align: center;
+
+  /* Toast notification */
+  #toast {
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    background: var(--brand-blue);
+    color: white;
+    padding: 0.75rem 1.5rem;
     border-radius: 6px;
-    padding: 0.5rem;
-    position: absolute;
-    z-index: 10;
-    bottom: 125%;
-    left: 50%;
-    transform: translateX(-50%);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
     opacity: 0;
-    transition: opacity 0.3s ease;
-    font-size: 0.85rem;
     pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 1100;
   }
-  .tooltip:hover .tooltiptext, .tooltip:focus .tooltiptext {
-    visibility: visible;
+  #toast.show {
     opacity: 1;
     pointer-events: auto;
   }
 
-  /* Buttons */
-  fluent-button[appearance="accent"] {
-    --button-accent-fill-rest: var(--primary-color);
-    --button-accent-fill-hover: #005a9e;
-    --button-accent-fill-active: #004578;
+  /* Scrollbar styling */
+  #mainContent::-webkit-scrollbar {
+    width: 10px;
   }
-
-  /* Responsive */
-  @media (max-width: 720px) {
-    aside {
-      width: 48px;
-    }
-    aside fluent-button {
-      width: 32px;
-      height: 32px;
-      font-size: 18px;
-      margin: 0.25rem 0;
-    }
-    fluent-text-field, fluent-select, fluent-button {
-      max-width: 100%;
-    }
+  #mainContent::-webkit-scrollbar-track {
+    background: transparent;
   }
-
+  #mainContent::-webkit-scrollbar-thumb {
+    background-color: var(--brand-blue);
+    border-radius: 6px;
+  }
 </style>
-
+</head>
 <body>
-  <aside role="navigation" aria-label="Meniu principal CRM">
-    <fluent-button title="Clienți" aria-pressed="true" id="btn-clienti" onclick="switchTab('clienti')" >📇</fluent-button>
-    <fluent-button title="Contracte" id="btn-contracte" onclick="switchTab('contracte')">📄</fluent-button>
-    <fluent-button title="Abonamente" id="btn-abonamente" onclick="switchTab('abonamente')">📦</fluent-button>
-    <fluent-button title="Tracking HR" id="btn-hr" onclick="switchTab('hr')">👥</fluent-button>
-    <fluent-button title="Licențe" id="btn-licente" onclick="switchTab('licente')">🔑</fluent-button>
-    <fluent-button title="Dashboard" id="btn-dashboard" onclick="switchTab('dashboard')">📊</fluent-button>
-
-    <fluent-button appearance="accent" title="Exportă date criptate" onclick="exportData()">⬇️</fluent-button>
-    <fluent-button title="Importă date criptate" onclick="importData()">⬆️</fluent-button>
-    <fluent-button appearance="stealth" title="Resetează toate datele" onclick="clearData()">🗑️</fluent-button>
-
-    <div id="encryptedInfo" class="tooltip" tabindex="0" role="note" aria-label="Datele sunt stocate criptat folosind AES-256 cu PIN">
-      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="currentColor">
-        <path d="M12 1C8.13 1 5 4.13 5 8v4H4a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1v-9a1 1 0 0 0-1-1h-1V8c0-3.87-3.13-7-7-7zm0 3a3 3 0 0 1 3 3v4h-6V7a3 3 0 0 1 3-3zm-1 8v5h2v-5h-2z"/>
-      </svg>
-      Date criptate AES-256
-      <span class="tooltiptext">Toate datele sunt stocate și transferate folosind criptare AES-256 cu salt și PIN. Siguranța datelor este prioritară.</span>
+  <nav id="sidebar" aria-label="Navigație principală" role="navigation">
+    <div class="logo" tabindex="0" aria-label="Logo CRM UltraPro 2025">CRM 2025</div>
+    <fluent-button aria-current="true" aria-label="Clienți" title="Clienți" data-tab="clienti">📇 <span class="label">Clienți</span></fluent-button>
+    <fluent-button aria-label="Contracte" title="Contracte" data-tab="contracte">📄 <span class="label">Contracte</span></fluent-button>
+    <fluent-button aria-label="Abonamente" title="Abonamente" data-tab="abonamente">📦 <span class="label">Abonamente</span></fluent-button>
+    <fluent-button aria-label="Tracking HR" title="Tracking HR" data-tab="hr">👥 <span class="label">Tracking HR</span></fluent-button>
+    <fluent-button aria-label="Licențe" title="Licențe" data-tab="licente">🔑 <span class="label">Licențe</span></fluent-button>
+    <fluent-button aria-label="Dashboard" title="Dashboard" data-tab="dashboard">📊 <span class="label">Dashboard</span></fluent-button>
+    <div class="toggle-menu" role="button" tabindex="0" aria-label="Toggle meniu extins" title="Extinde / restrânge meniul" id="toggleMenu">☰</div>
+    <div id="footerStatus" aria-live="polite" tabindex="0">
+      <svg class="aes-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1C8 1 5 4 5 8v4H4v8h16v-8h-1v-4c0-4-3-7-7-7zm3 11H9v-3a3 3 0 016 0v3z"/></svg>
+      Datele sunt criptate AES-256
+      <div class="tooltip" role="tooltip">Toate datele sunt securizate cu criptare AES-256</div>
     </div>
-  </aside>
+  </nav>
 
-  <main>
-    <div class="top-bar">
-      <h1>CRM Enterprise - Nivel maxim de securitate</h1>
-      <fluent-button id="toggleDarkMode">Mod Întunecat</fluent-button>
-    </div>
+  <main id="mainContent" tabindex="0" aria-live="polite" aria-atomic="true" aria-relevant="additions removals">
+    <header>
+      <h1 id="pageTitle">Clienți</h1>
+      <fluent-button id="darkModeToggle" aria-pressed="false" aria-label="Comută modul întunecat">🌙 Dark Mode</fluent-button>
+    </header>
 
-    <!-- Tab Clienți -->
-    <section id="clienti" class="tabcontent active" aria-labelledby="tab-clienti" role="tabpanel">
-      <h2>Administrare Clienți</h2>
-      <form id="clientForm" aria-label="Formular adăugare client">
-        <fluent-text-field id="clientName" placeholder="Nume client" required aria-required="true"></fluent-text-field>
-        <fluent-text-field id="clientEmail" placeholder="Email client" type="email" required aria-required="true"></fluent-text-field>
-        <fluent-button appearance="accent" type="submit">Adaugă Client</fluent-button>
+    <!-- Secțiuni dinamice -->
+    <section id="clienti" class="section active" aria-label="Gestionare clienți">
+      <h2>Lista Clienți</h2>
+      <form id="formClienti" aria-label="Adaugă client nou" novalidate>
+        <fluent-text-field name="nume" placeholder="Nume client" required aria-required="true" minlength="2"></fluent-text-field>
+        <fluent-text-field name="email" placeholder="Email" type="email" required aria-required="true"></fluent-text-field>
+        <fluent-text-field name="telefon" placeholder="Telefon" pattern="^\+?\d{7,15}$" title="Număr valid" required aria-required="true"></fluent-text-field>
+        <fluent-button type="submit" appearance="accent">Adaugă Client</fluent-button>
       </form>
-      <table aria-label="Lista clienți">
-        <thead><tr><th>Nume</th><th>Email</th></tr></thead>
-        <tbody id="clientList"></tbody>
+      <table aria-describedby="clientiDesc" id="tableClienti" role="grid" tabindex="0">
+        <caption id="clientiDesc">Tabel cu toți clienții adăugați</caption>
+        <thead><tr><th>Nume</th><th>Email</th><th>Telefon</th><th>Acțiuni</th></tr></thead>
+        <tbody></tbody>
       </table>
     </section>
 
-    <!-- Tab Contracte -->
-    <section id="contracte" class="tabcontent" aria-labelledby="tab-contracte" role="tabpanel" hidden>
-      <h2>Administrare Contracte</h2>
-      <form id="contractForm" aria-label="Formular adăugare contract">
-        <fluent-select id="contractClient" required aria-required="true" placeholder="Selectează client">
-          <option value="" disabled selected>Selectează client</option>
-        </fluent-select>
-        <fluent-text-field id="contractName" placeholder="Nume contract" required aria-required="true"></fluent-text-field>
-        <fluent-button appearance="accent" type="submit">Adaugă Contract</fluent-button>
+    <section id="contracte" class="section" aria-label="Gestionare contracte" hidden>
+      <h2>Contracte</h2>
+      <form id="formContracte" aria-label="Adaugă contract nou" novalidate>
+        <fluent-select name="client" required aria-required="true" placeholder="Selectează client"></fluent-select>
+        <fluent-text-field name="denumire" placeholder="Denumire contract" required aria-required="true"></fluent-text-field>
+        <fluent-text-field name="valoare" placeholder="Valoare (RON)" type="number" min="0" step="0.01" required aria-required="true"></fluent-text-field>
+        <fluent-button type="submit" appearance="accent">Adaugă Contract</fluent-button>
       </form>
-      <table aria-label="Lista contracte">
-        <thead><tr><th>Client</th><th>Contract</th></tr></thead>
-        <tbody id="contractList"></tbody>
+      <table aria-describedby="contracteDesc" id="tableContracte" role="grid" tabindex="0">
+        <caption id="contracteDesc">Tabel cu toate contractele</caption>
+        <thead><tr><th>Client</th><th>Denumire</th><th>Valoare (RON)</th><th>Acțiuni</th></tr></thead>
+        <tbody></tbody>
       </table>
     </section>
 
-    <!-- Tab Abonamente -->
-    <section id="abonamente" class="tabcontent" aria-labelledby="tab-abonamente" role="tabpanel" hidden>
-      <h2>Administrare Abonamente</h2>
-      <form id="abonamentForm" aria-label="Formular adăugare abonament">
-        <fluent-select id="abonamentClient" required aria-required="true" placeholder="Selectează client">
-          <option value="" disabled selected>Selectează client</option>
-        </fluent-select>
-        <fluent-text-field id="abonamentName" placeholder="Nume abonament" required aria-required="true"></fluent-text-field>
-        <fluent-select id="abonamentStatus" required aria-required="true" placeholder="Status">
-          <option value="" disabled selected>Selectează status</option>
-          <option value="activ">Activ</option>
-          <option value="inactiv">Inactiv</option>
-          <option value="anulat">Anulat</option>
-        </fluent-select>
-        <fluent-button appearance="accent" type="submit">Adaugă Abonament</fluent-button>
+    <section id="abonamente" class="section" aria-label="Gestionare abonamente" hidden>
+      <h2>Abonamente</h2>
+      <form id="formAbonamente" aria-label="Adaugă abonament nou" novalidate>
+        <fluent-text-field name="nume" placeholder="Nume abonament" required aria-required="true"></fluent-text-field>
+        <fluent-text-field name="pret" placeholder="Preț lunar (RON)" type="number" min="0" step="0.01" required aria-required="true"></fluent-text-field>
+        <fluent-button type="submit" appearance="accent">Adaugă Abonament</fluent-button>
       </form>
-      <table aria-label="Lista abonamente">
-        <thead><tr><th>Client</th><th>Abonament</th><th>Status</th></tr></thead>
-        <tbody id="abonamentList"></tbody>
+      <table aria-describedby="abonamenteDesc" id="tableAbonamente" role="grid" tabindex="0">
+        <caption id="abonamenteDesc">Tabel cu toate abonamentele</caption>
+        <thead><tr><th>Nume</th><th>Preț lunar (RON)</th><th>Acțiuni</th></tr></thead>
+        <tbody></tbody>
       </table>
     </section>
 
-    <!-- Tab HR -->
-    <section id="hr" class="tabcontent" aria-labelledby="tab-hr" role="tabpanel" hidden>
+    <section id="hr" class="section" aria-label="Tracking HR" hidden>
       <h2>Tracking HR</h2>
-      <form id="hrForm" aria-label="Formular adăugare angajat">
-        <fluent-text-field id="employeeName" placeholder="Nume angajat" required aria-required="true"></fluent-text-field>
-        <fluent-select id="employeeRole" required aria-required="true" placeholder="Rol angajat">
-          <option value="" disabled selected>Selectează rol</option>
-          <option value="manager">Manager</option>
-          <option value="developer">Developer</option>
-          <option value="sales">Sales</option>
-          <option value="support">Support</option>
-        </fluent-select>
-        <fluent-button appearance="accent" type="submit">Adaugă Angajat</fluent-button>
+      <form id="formHR" aria-label="Adaugă angajat" novalidate>
+        <fluent-text-field name="nume" placeholder="Nume angajat" required aria-required="true"></fluent-text-field>
+        <fluent-text-field name="functie" placeholder="Funcție" required aria-required="true"></fluent-text-field>
+        <fluent-text-field name="email" placeholder="Email" type="email" required aria-required="true"></fluent-text-field>
+        <fluent-button type="submit" appearance="accent">Adaugă Angajat</fluent-button>
       </form>
-      <table aria-label="Lista angajați">
-        <thead><tr><th>Nume</th><th>Rol</th></tr></thead>
-        <tbody id="employeeList"></tbody>
+      <table aria-describedby="hrDesc" id="tableHR" role="grid" tabindex="0">
+        <caption id="hrDesc">Tabel cu angajați</caption>
+        <thead><tr><th>Nume</th><th>Funcție</th><th>Email</th><th>Acțiuni</th></tr></thead>
+        <tbody></tbody>
       </table>
     </section>
 
-    <!-- Tab Licențe -->
-    <section id="licente" class="tabcontent" aria-labelledby="tab-licente" role="tabpanel" hidden>
-      <h2>Administrare Licențe</h2>
-      <form id="licenseForm" aria-label="Formular generare licență" style="display:flex; gap:1rem; flex-wrap: wrap; align-items: center;">
-        <fluent-text-field id="licenseGenInput" placeholder="Nume client pentru licență" required aria-required="true" style="flex:1 1 250px;"></fluent-text-field>
-        <fluent-button appearance="accent" type="submit">Generează Licență</fluent-button>
+    <section id="licente" class="section" aria-label="Gestionare licențe software" hidden>
+      <h2>Licențe Software</h2>
+      <form id="formLicente" aria-label="Adaugă licență" novalidate>
+        <fluent-text-field name="software" placeholder="Software" required aria-required="true"></fluent-text-field>
+        <fluent-text-field name="cheie" placeholder="Cheie licență" required aria-required="true"></fluent-text-field>
+        <fluent-text-field name="dataExpirare" placeholder="Data expirare (YYYY-MM-DD)" pattern="^\d{4}-\d{2}-\d{2}$" title="Format: YYYY-MM-DD" required aria-required="true"></fluent-text-field>
+        <fluent-button type="submit" appearance="accent">Adaugă Licență</fluent-button>
       </form>
-      <div class="license-list" id="licenseList" aria-live="polite" aria-relevant="additions" role="list"></div>
+      <table aria-describedby="licenteDesc" id="tableLicente" role="grid" tabindex="0">
+        <caption id="licenteDesc">Tabel cu toate licențele</caption>
+        <thead><tr><th>Software</th><th>Cheie</th><th>Data Expirare</th><th>Acțiuni</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <div id="licenteFooter" style="margin-top: 1rem; font-size: 0.9rem; color: var(--brand-green);"></div>
     </section>
 
-    <!-- Tab Dashboard -->
-    <section id="dashboard" class="tabcontent" aria-labelledby="tab-dashboard" role="tabpanel" hidden>
-      <h2>Dashboard Statistici Avansate</h2>
-      <canvas id="statsChart" aria-label="Grafic statistici CRM" role="img" style="max-width: 100%; height: 400px;"></canvas>
+    <section id="dashboard" class="section" aria-label="Dashboard" hidden>
+      <h2>Dashboard Analize Avansate</h2>
+      <canvas id="chartContracts" aria-label="Grafic valoare contracte pe client" role="img" width="400" height="250"></canvas>
+      <canvas id="chartLicente" aria-label="Grafic număr licențe expirate și active" role="img" width="400" height="250" style="margin-top: 2rem;"></canvas>
+      <div id="statsSummary" style="margin-top: 2rem; font-size: 1rem; color: var(--brand-blue);"></div>
     </section>
   </main>
 
+  <div id="toast" role="alert" aria-live="assertive" aria-atomic="true"></div>
+
 <script>
-  // Utilitare criptare AES cu CryptoJS
-  const SECRET_PIN = '1234SecurePin!'; // În producție, pinul ar fi securizat altfel
+(() => {
+  'use strict';
 
-  function encryptData(data) {
-    return CryptoJS.AES.encrypt(JSON.stringify(data), SECRET_PIN).toString();
+  // === State ===
+  let darkMode = false;
+  const db = {
+    clienti: [],
+    contracte: [],
+    abonamente: [],
+    hr: [],
+    licente: []
+  };
+
+  // === DOM elements ===
+  const sidebar = document.getElementById('sidebar');
+  const toggleMenuBtn = document.getElementById('toggleMenu');
+  const darkModeToggle = document.getElementById('darkModeToggle');
+  const mainContent = document.getElementById('mainContent');
+  const pageTitle = document.getElementById('pageTitle');
+  const toast = document.getElementById('toast');
+
+  // Sections and buttons
+  const tabs = Array.from(sidebar.querySelectorAll('fluent-button[data-tab]'));
+  const sections = Array.from(mainContent.querySelectorAll('.section'));
+
+  // Forms
+  const formClienti = document.getElementById('formClienti');
+  const formContracte = document.getElementById('formContracte');
+  const formAbonamente = document.getElementById('formAbonamente');
+  const formHR = document.getElementById('formHR');
+  const formLicente = document.getElementById('formLicente');
+
+  // Tables
+  const tbodyClienti = document.querySelector('#tableClienti tbody');
+  const tbodyContracte = document.querySelector('#tableContracte tbody');
+  const tbodyAbonamente = document.querySelector('#tableAbonamente tbody');
+  const tbodyHR = document.querySelector('#tableHR tbody');
+  const tbodyLicente = document.querySelector('#tableLicente tbody');
+
+  // Other UI
+  const licenteFooter = document.getElementById('licenteFooter');
+  const contractChartCtx = document.getElementById('chartContracts').getContext('2d');
+  const licenteChartCtx = document.getElementById('chartLicente').getContext('2d');
+  const statsSummary = document.getElementById('statsSummary');
+
+  // AES key - in real, user input or secure store; demo fixed key
+  const AES_KEY = 'crm-ultrapro-2025-super-secret-key!';
+
+  // === Utility ===
+  function encrypt(text) {
+    return CryptoJS.AES.encrypt(text, AES_KEY).toString();
   }
-
-  function decryptData(ciphertext) {
+  function decrypt(cipher) {
     try {
-      const bytes = CryptoJS.AES.decrypt(ciphertext, SECRET_PIN);
-      return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
-    } catch (e) {
-      return null;
+      return CryptoJS.AES.decrypt(cipher, AES_KEY).toString(CryptoJS.enc.Utf8);
+    } catch {
+      return '';
     }
   }
+  function showToast(message, duration=3000) {
+    toast.textContent = message;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), duration);
+  }
+  function clearChildren(elem) {
+    while(elem.firstChild) elem.removeChild(elem.firstChild);
+  }
+  function formatDate(dateStr) {
+    if(!dateStr) return '';
+    const d = new Date(dateStr);
+    if(isNaN(d)) return '';
+    return d.toISOString().split('T')[0];
+  }
+  function daysToExpire(dateStr) {
+    if(!dateStr) return Infinity;
+    const now = new Date();
+    const d = new Date(dateStr);
+    return Math.floor((d - now) / (1000*3600*24));
+  }
+  function isExpired(dateStr) {
+    return daysToExpire(dateStr) < 0;
+  }
 
-  // Date stocate local
-  let clienti = [];
-  let contracte = [];
-  let abonamente = [];
-  let angajati = [];
-  let licente = [];
-
-  // Initializare aplicație
-  document.addEventListener('DOMContentLoaded', () => {
-    loadData();
-    setupEventListeners();
-    renderAllLists();
-    setupChart();
+  // === Navigation ===
+  function showSection(tab) {
+    tabs.forEach(btn => btn.setAttribute('aria-current', 'false'));
+    tab.setAttribute('aria-current', 'true');
+    const tabName = tab.dataset.tab;
+    pageTitle.textContent = tab.textContent.trim();
+    sections.forEach(s => {
+      s.hidden = s.id !== tabName;
+      if(!s.hidden) s.classList.add('active'); else s.classList.remove('active');
+    });
+    if(tabName === 'contracte') updateContractClientSelect();
+    if(tabName === 'dashboard') updateDashboard();
+    if(tabName === 'licente') updateLicenteFooter();
+  }
+  tabs.forEach(btn => {
+    btn.addEventListener('click', () => showSection(btn));
+  });
+  toggleMenuBtn.addEventListener('click', () => {
+    sidebar.classList.toggle('expanded');
+  });
+  toggleMenuBtn.addEventListener('keypress', e => {
+    if(e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      toggleMenuBtn.click();
+    }
   });
 
-  // Load & Save localStorage (criptat)
-  function loadData() {
-    const encryptedClients = localStorage.getItem('crm_clienti');
-    if(encryptedClients) {
-      const data = decryptData(encryptedClients);
-      if(data) clienti = data;
-    }
-    const encryptedContracte = localStorage.getItem('crm_contracte');
-    if(encryptedContracte) {
-      const data = decryptData(encryptedContracte);
-      if(data) contracte = data;
-    }
-    const encryptedAbonamente = localStorage.getItem('crm_abonamente');
-    if(encryptedAbonamente) {
-      const data = decryptData(encryptedAbonamente);
-      if(data) abonamente = data;
-    }
-    const encryptedAngajati = localStorage.getItem('crm_angajati');
-    if(encryptedAngajati) {
-      const data = decryptData(encryptedAngajati);
-      if(data) angajati = data;
-    }
-    const encryptedLicente = localStorage.getItem('crm_licente');
-    if(encryptedLicente) {
-      const data = decryptData(encryptedLicente);
-      if(data) licente = data;
+  // === Dark mode toggle ===
+  function setDarkMode(on) {
+    darkMode = on;
+    if(darkMode) {
+      document.body.classList.add('dark');
+      darkModeToggle.setAttribute('aria-pressed', 'true');
+      darkModeToggle.textContent = '☀️ Light Mode';
+    } else {
+      document.body.classList.remove('dark');
+      darkModeToggle.setAttribute('aria-pressed', 'false');
+      darkModeToggle.textContent = '🌙 Dark Mode';
     }
   }
+  darkModeToggle.addEventListener('click', () => {
+    setDarkMode(!darkMode);
+  });
 
-  function saveData() {
-    localStorage.setItem('crm_clienti', encryptData(clienti));
-    localStorage.setItem('crm_contracte', encryptData(contracte));
-    localStorage.setItem('crm_abonamente', encryptData(abonamente));
-    localStorage.setItem('crm_angajati', encryptData(angajati));
-    localStorage.setItem('crm_licente', encryptData(licente));
-  }
-
-  // Switch tab
-  function switchTab(tabId) {
-    document.querySelectorAll('.tabcontent').forEach(t => {
-      t.classList.remove('active');
-      t.hidden = true;
-    });
-    document.getElementById(tabId).classList.add('active');
-    document.getElementById(tabId).hidden = false;
-
-    // Active button highlight
-    document.querySelectorAll('aside fluent-button').forEach(btn => btn.setAttribute('aria-pressed', 'false'));
-    document.getElementById('btn-' + tabId).setAttribute('aria-pressed', 'true');
-
-    // Update selects when switching tabs
-    if (tabId === 'contracte') populateClientSelect('contractClient');
-    if (tabId === 'abonamente') populateClientSelect('abonamentClient');
-  }
-
-  // Populare select client
-  function populateClientSelect(selectId) {
-    const select = document.getElementById(selectId);
-    select.innerHTML = `<option value="" disabled selected>Selectează client</option>`;
-    clienti.forEach(c => {
-      const option = document.createElement('option');
-      option.value = c.email;
-      option.textContent = c.name;
-      select.appendChild(option);
-    });
-  }
-
-  // Render liste
-  function renderAllLists() {
-    renderClientList();
-    renderContractList();
-    renderAbonamentList();
-    renderEmployeeList();
-    renderLicenseList();
-    updateDashboard();
-  }
-
-  function renderClientList() {
-    const tbody = document.getElementById('clientList');
-    tbody.innerHTML = '';
-    clienti.forEach(c => {
+  // === FORM: CLIENTI ===
+  function renderClienti() {
+    clearChildren(tbodyClienti);
+    db.clienti.forEach((c,i) => {
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${escapeHtml(c.name)}</td><td>${escapeHtml(c.email)}</td>`;
-      tbody.appendChild(tr);
-    });
-  }
-  function renderContractList() {
-    const tbody = document.getElementById('contractList');
-    tbody.innerHTML = '';
-    contracte.forEach(ct => {
-      const clientName = clienti.find(c => c.email === ct.clientEmail)?.name || 'Necunoscut';
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${escapeHtml(clientName)}</td><td>${escapeHtml(ct.name)}</td>`;
-      tbody.appendChild(tr);
-    });
-  }
-  function renderAbonamentList() {
-    const tbody = document.getElementById('abonamentList');
-    tbody.innerHTML = '';
-    abonamente.forEach(ab => {
-      const clientName = clienti.find(c => c.email === ab.clientEmail)?.name || 'Necunoscut';
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${escapeHtml(clientName)}</td><td>${escapeHtml(ab.name)}</td><td>${escapeHtml(ab.status)}</td>`;
-      tbody.appendChild(tr);
-    });
-  }
-  function renderEmployeeList() {
-    const tbody = document.getElementById('employeeList');
-    tbody.innerHTML = '';
-    angajati.forEach(e => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${escapeHtml(e.name)}</td><td>${escapeHtml(e.role)}</td>`;
-      tbody.appendChild(tr);
-    });
-  }
-
-  // Licențe - afișare în carduri
-  function renderLicenseList() {
-    const container = document.getElementById('licenseList');
-    container.innerHTML = '';
-    licente.forEach(l => {
-      const card = document.createElement('div');
-      card.className = 'license-card';
-      card.setAttribute('role', 'listitem');
-      card.innerHTML = `
-        <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 1C8.13 1 5 4.13 5 8v4H4a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1v-9a1 1 0 0 0-1-1h-1V8c0-3.87-3.13-7-7-7zm0 3a3 3 0 0 1 3 3v4h-6V7a3 3 0 0 1 3-3zm-1 8v5h2v-5h-2z"/>
-        </svg>
-        <span>${escapeHtml(l.client)} - <code>${escapeHtml(l.key)}</code></span>
+      tr.innerHTML = `
+        <td>${c.nume}</td>
+        <td>${c.email}</td>
+        <td>${c.telefon}</td>
+        <td>
+          <fluent-button appearance="accent" aria-label="Șterge client ${c.nume}" data-idx="${i}" class="btn-delete">🗑️</fluent-button>
+        </td>
       `;
-      container.appendChild(card);
+      tbodyClienti.appendChild(tr);
     });
   }
-
-  // Formulare adăugare
-  function setupEventListeners() {
-    // Clienți
-    document.getElementById('clientForm').addEventListener('submit', e => {
-      e.preventDefault();
-      const name = e.target.clientName.value.trim();
-      const email = e.target.clientEmail.value.trim();
-      if (!name || !email) return alert('Completati toate campurile clientului!');
-      if (clienti.some(c => c.email === email)) return alert('Client cu acest email există deja!');
-      clienti.push({name, email});
-      saveData();
-      renderClientList();
-      populateClientSelect('contractClient');
-      populateClientSelect('abonamentClient');
-      e.target.reset();
-      updateDashboard();
-    });
-
-    // Contracte
-    document.getElementById('contractForm').addEventListener('submit', e => {
-      e.preventDefault();
-      const clientEmail = e.target.contractClient.value;
-      const name = e.target.contractName.value.trim();
-      if (!clientEmail || !name) return alert('Completați toate câmpurile contractului!');
-      contracte.push({clientEmail, name});
-      saveData();
-      renderContractList();
-      e.target.reset();
-      updateDashboard();
-    });
-
-    // Abonamente
-    document.getElementById('abonamentForm').addEventListener('submit', e => {
-      e.preventDefault();
-      const clientEmail = e.target.abonamentClient.value;
-      const name = e.target.abonamentName.value.trim();
-      const status = e.target.abonamentStatus.value;
-      if (!clientEmail || !name || !status) return alert('Completați toate câmpurile abonamentului!');
-      abonamente.push({clientEmail, name, status});
-      saveData();
-      renderAbonamentList();
-      e.target.reset();
-      updateDashboard();
-    });
-
-    // HR
-    document.getElementById('hrForm').addEventListener('submit', e => {
-      e.preventDefault();
-      const name = e.target.employeeName.value.trim();
-      const role = e.target.employeeRole.value;
-      if (!name || !role) return alert('Completați toate câmpurile angajatului!');
-      angajati.push({name, role});
-      saveData();
-      renderEmployeeList();
-      e.target.reset();
-    });
-
-    // Licențe
-    document.getElementById('licenseForm').addEventListener('submit', e => {
-      e.preventDefault();
-      const clientName = e.target.licenseGenInput.value.trim();
-      if (!clientName) return alert('Completați numele clientului pentru licență!');
-      const licenseKey = generateLicenseKey(clientName);
-      licente.push({client: clientName, key: licenseKey});
-      saveData();
-      renderLicenseList();
-      e.target.reset();
-    });
-
-    // Toggle mod întunecat
-    document.getElementById('toggleDarkMode').addEventListener('click', () => {
-      document.documentElement.classList.toggle('dark-mode');
-    });
-
-    // Tab buttons
-    document.querySelectorAll('aside fluent-button').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const tabId = btn.id.replace('btn-', '');
-        switchTab(tabId);
-      });
-    });
-  }
-
-  // Generare licență simplă (hash)
-  function generateLicenseKey(clientName) {
-    // Simplu hash bazat pe clientName + data curentă
-    const data = clientName + new Date().toISOString();
-    return CryptoJS.SHA256(data).toString().slice(0, 16).toUpperCase();
-  }
-
-  // Escapare HTML simplă
-  function escapeHtml(text) {
-    const map = {
-      '&': '&amp;',
-      '<': '&lt;',
-      '>': '&gt;',
-      '"': '&quot;',
-      "'": '&#039;'
+  formClienti.addEventListener('submit', e => {
+    e.preventDefault();
+    if(!formClienti.reportValidity()) return;
+    const formData = new FormData(formClienti);
+    const newClient = {
+      nume: formData.get('nume').trim(),
+      email: formData.get('email').trim(),
+      telefon: formData.get('telefon').trim(),
     };
-    return text.replace(/[&<>"']/g, m => map[m]);
+    // Prevent duplicate email
+    if(db.clienti.some(c => c.email.toLowerCase() === newClient.email.toLowerCase())) {
+      showToast('Client cu acest email deja există.');
+      return;
+    }
+    db.clienti.push(newClient);
+    saveData();
+    renderClienti();
+    formClienti.reset();
+    showToast('Client adăugat cu succes!');
+  });
+  tbodyClienti.addEventListener('click', e => {
+    if(e.target.classList.contains('btn-delete')) {
+      const idx = Number(e.target.dataset.idx);
+      if(!isNaN(idx)) {
+        if(confirm(`Ștergi clientul "${db.clienti[idx].nume}"?`)) {
+          db.clienti.splice(idx, 1);
+          saveData();
+          renderClienti();
+          updateContractClientSelect();
+          showToast('Client șters.');
+        }
+      }
+    }
+  });
+
+  // === FORM: CONTRACTE ===
+  function updateContractClientSelect() {
+    const select = formContracte.querySelector('fluent-select[name="client"]');
+    clearChildren(select);
+    if(db.clienti.length === 0) {
+      const opt = document.createElement('option');
+      opt.textContent = 'Nu există clienți';
+      opt.disabled = true;
+      opt.selected = true;
+      select.appendChild(opt);
+      select.disabled = true;
+    } else {
+      select.disabled = false;
+      const opt = document.createElement('option');
+      opt.textContent = 'Selectează client';
+      opt.value = '';
+      opt.selected = true;
+      opt.disabled = true;
+      select.appendChild(opt);
+      db.clienti.forEach((c,i) => {
+        const option = document.createElement('option');
+        option.value = i;
+        option.textContent = c.nume;
+        select.appendChild(option);
+      });
+    }
+  }
+  function renderContracte() {
+    clearChildren(tbodyContracte);
+    db.contracte.forEach((c,i) => {
+      const client = db.clienti[c.clientIdx];
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${client ? client.nume : '(Client șters)'}</td>
+        <td>${c.denumire}</td>
+        <td>${Number(c.valoare).toFixed(2)}</td>
+        <td>
+          <fluent-button appearance="accent" aria-label="Șterge contract ${c.denumire}" data-idx="${i}" class="btn-delete">🗑️</fluent-button>
+        </td>
+      `;
+      tbodyContracte.appendChild(tr);
+    });
+  }
+  formContracte.addEventListener('submit', e => {
+    e.preventDefault();
+    if(!formContracte.reportValidity()) return;
+    const fd = new FormData(formContracte);
+    const clientIdx = Number(fd.get('client'));
+    if(isNaN(clientIdx) || !db.clienti[clientIdx]) {
+      showToast('Selectează un client valid.');
+      return;
+    }
+    const newContract = {
+      clientIdx,
+      denumire: fd.get('denumire').trim(),
+      valoare: Number(fd.get('valoare'))
+    };
+    db.contracte.push(newContract);
+    saveData();
+    renderContracte();
+    formContracte.reset();
+    showToast('Contract adăugat!');
+  });
+  tbodyContracte.addEventListener('click', e => {
+    if(e.target.classList.contains('btn-delete')) {
+      const idx = Number(e.target.dataset.idx);
+      if(!isNaN(idx)) {
+        if(confirm(`Ștergi contractul "${db.contracte[idx].denumire}"?`)) {
+          db.contracte.splice(idx, 1);
+          saveData();
+          renderContracte();
+          showToast('Contract șters.');
+        }
+      }
+    }
+  });
+
+  // === FORM: ABONAMENTE ===
+  function renderAbonamente() {
+    clearChildren(tbodyAbonamente);
+    db.abonamente.forEach((a,i) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${a.nume}</td>
+        <td>${Number(a.pret).toFixed(2)}</td>
+        <td>
+          <fluent-button appearance="accent" aria-label="Șterge abonament ${a.nume}" data-idx="${i}" class="btn-delete">🗑️</fluent-button>
+        </td>
+      `;
+      tbodyAbonamente.appendChild(tr);
+    });
+  }
+  formAbonamente.addEventListener('submit', e => {
+    e.preventDefault();
+    if(!formAbonamente.reportValidity()) return;
+    const fd = new FormData(formAbonamente);
+    const newAbonament = {
+      nume: fd.get('nume').trim(),
+      pret: Number(fd.get('pret'))
+    };
+    db.abonamente.push(newAbonament);
+    saveData();
+    renderAbonamente();
+    formAbonamente.reset();
+    showToast('Abonament adăugat!');
+  });
+  tbodyAbonamente.addEventListener('click', e => {
+    if(e.target.classList.contains('btn-delete')) {
+      const idx = Number(e.target.dataset.idx);
+      if(!isNaN(idx)) {
+        if(confirm(`Ștergi abonamentul "${db.abonamente[idx].nume}"?`)) {
+          db.abonamente.splice(idx, 1);
+          saveData();
+          renderAbonamente();
+          showToast('Abonament șters.');
+        }
+      }
+    }
+  });
+
+  // === FORM: HR ===
+  function renderHR() {
+    clearChildren(tbodyHR);
+    db.hr.forEach((h,i) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${h.nume}</td>
+        <td>${h.functie}</td>
+        <td>${h.email}</td>
+        <td>
+          <fluent-button appearance="accent" aria-label="Șterge angajat ${h.nume}" data-idx="${i}" class="btn-delete">🗑️</fluent-button>
+        </td>
+      `;
+      tbodyHR.appendChild(tr);
+    });
+  }
+  formHR.addEventListener('submit', e => {
+    e.preventDefault();
+    if(!formHR.reportValidity()) return;
+    const fd = new FormData(formHR);
+    const newHr = {
+      nume: fd.get('nume').trim(),
+      functie: fd.get('functie').trim(),
+      email: fd.get('email').trim()
+    };
+    db.hr.push(newHr);
+    saveData();
+    renderHR();
+    formHR.reset();
+    showToast('Angajat adăugat!');
+  });
+  tbodyHR.addEventListener('click', e => {
+    if(e.target.classList.contains('btn-delete')) {
+      const idx = Number(e.target.dataset.idx);
+      if(!isNaN(idx)) {
+        if(confirm(`Ștergi angajatul "${db.hr[idx].nume}"?`)) {
+          db.hr.splice(idx, 1);
+          saveData();
+          renderHR();
+          showToast('Angajat șters.');
+        }
+      }
+    }
+  });
+
+  // === FORM: LICENTE ===
+  function renderLicente() {
+    clearChildren(tbodyLicente);
+    db.licente.forEach((l,i) => {
+      const expired = isExpired(l.dataExpirare);
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${l.software}</td>
+        <td>${decrypt(l.cheie)}</td>
+        <td>${formatDate(l.dataExpirare)}</td>
+        <td>
+          <fluent-button appearance="accent" aria-label="Șterge licență ${l.software}" data-idx="${i}" class="btn-delete">🗑️</fluent-button>
+        </td>
+      `;
+      if(expired) tr.style.color = 'var(--brand-red)';
+      tbodyLicente.appendChild(tr);
+    });
+  }
+  formLicente.addEventListener('submit', e => {
+    e.preventDefault();
+    if(!formLicente.reportValidity()) return;
+    const fd = new FormData(formLicente);
+    const newLicenta = {
+      software: fd.get('software').trim(),
+      cheie: encrypt(fd.get('cheie').trim()),
+      dataExpirare: fd.get('dataExpirare').trim()
+    };
+    db.licente.push(newLicenta);
+    saveData();
+    renderLicente();
+    updateLicenteFooter();
+    formLicente.reset();
+    showToast('Licență adăugată!');
+  });
+  tbodyLicente.addEventListener('click', e => {
+    if(e.target.classList.contains('btn-delete')) {
+      const idx = Number(e.target.dataset.idx);
+      if(!isNaN(idx)) {
+        if(confirm(`Ștergi licența software ${db.licente[idx].software}?`)) {
+          db.licente.splice(idx, 1);
+          saveData();
+          renderLicente();
+          updateLicenteFooter();
+          showToast('Licență ștearsă.');
+        }
+      }
+    }
+  });
+
+  // === Licente footer update ===
+  function updateLicenteFooter() {
+    const total = db.licente.length;
+    const expiredCount = db.licente.filter(l => isExpired(l.dataExpirare)).length;
+    licenteFooter.textContent = `Total licențe: ${total} | Licențe expirate: ${expiredCount}`;
   }
 
-  // Dashboard (exemplu grafic Chart.js)
-  let statsChart;
-  function setupChart() {
-    const ctx = document.getElementById('statsChart').getContext('2d');
-    statsChart = new Chart(ctx, {
+  // === Dashboard ===
+  let chartContracts, chartLicente;
+  function updateDashboard() {
+    // Contracts per client
+    const contractValues = {};
+    db.contracte.forEach(c => {
+      const client = db.clienti[c.clientIdx];
+      const name = client ? client.nume : '(Client șters)';
+      contractValues[name] = (contractValues[name] || 0) + c.valoare;
+    });
+    const labelsContracts = Object.keys(contractValues);
+    const dataContracts = Object.values(contractValues);
+
+    if(chartContracts) chartContracts.destroy();
+    chartContracts = new Chart(contractChartCtx, {
       type: 'bar',
       data: {
-        labels: ['Clienți', 'Contracte', 'Abonamente', 'Angajați', 'Licențe'],
+        labels: labelsContracts,
         datasets: [{
-          label: 'Număr entități',
-          data: [clienti.length, contracte.length, abonamente.length, angajati.length, licente.length],
-          backgroundColor: ['#0078D4', '#2B88D8', '#71AFE5', '#A4C8F0', '#C7E0F4']
+          label: 'Valoare contracte (RON)',
+          data: dataContracts,
+          backgroundColor: 'rgba(54, 162, 235, 0.6)'
         }]
       },
       options: {
         responsive: true,
+        plugins: { legend: { display: false } },
         scales: {
           y: { beginAtZero: true }
         }
       }
     });
+
+    // Licenses expired vs active
+    const expiredCount = db.licente.filter(l => isExpired(l.dataExpirare)).length;
+    const activeCount = db.licente.length - expiredCount;
+    if(chartLicente) chartLicente.destroy();
+    chartLicente = new Chart(licenteChartCtx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Active', 'Expirate'],
+        datasets: [{
+          label: 'Licențe software',
+          data: [activeCount, expiredCount],
+          backgroundColor: ['rgba(75, 192, 192, 0.6)', 'rgba(255, 99, 132, 0.6)']
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { position: 'bottom' } }
+      }
+    });
+
+    statsSummary.textContent = `Total clienți: ${db.clienti.length} | Total contracte: ${db.contracte.length} | Total licențe: ${db.licente.length}`;
   }
 
-  function updateDashboard() {
-    if (statsChart) {
-      statsChart.data.datasets[0].data = [clienti.length, contracte.length, abonamente.length, angajati.length, licente.length];
-      statsChart.update();
+  // === Save/load data ===
+  function saveData() {
+    try {
+      localStorage.setItem('crmData', JSON.stringify(db));
+    } catch (e) {
+      console.error('Eroare salvare date:', e);
     }
   }
+  function loadData() {
+    try {
+      const data = localStorage.getItem('crmData');
+      if(data) {
+        const parsed = JSON.parse(data);
+        // Validate structure
+        ['clienti','contracte','abonamente','hr','licente'].forEach(k => {
+          if(Array.isArray(parsed[k])) {
+            db[k] = parsed[k];
+          }
+        });
+      }
+    } catch (e) {
+      console.error('Eroare încărcare date:', e);
+    }
+  }
+
+  // === Initialization ===
+  function init() {
+    loadData();
+    renderClienti();
+    updateContractClientSelect();
+    renderContracte();
+    renderAbonamente();
+    renderHR();
+    renderLicente();
+    updateLicenteFooter();
+    updateDashboard();
+  }
+
+  init();
+
+})();
 </script>
+
 </body>
 </html>
