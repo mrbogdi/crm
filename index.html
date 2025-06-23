@@ -19,10 +19,10 @@
     }
     #container {
       background: #fff;
-      padding: 3.5rem 4rem 3.5rem 4rem;
+      padding: 4rem 4rem 4rem 4rem;
       border-radius: 14px;
       box-shadow: 0 14px 30px rgb(0 0 0 / 0.12);
-      max-width: 450px;
+      max-width: 460px;
       width: 100%;
       text-align: center;
       box-sizing: border-box;
@@ -52,13 +52,13 @@
     }
     fluent-text-field {
       width: 100%;
-      margin-bottom: 0.8rem;
+      margin-bottom: 1rem;
     }
     fluent-button {
       width: 100%;
       font-weight: 600;
       font-size: 1.1rem;
-      padding: 0.9rem 0;
+      padding: 1.2rem 0;
       border-radius: 6px;
       cursor: pointer;
       transition: background-color 0.3s ease;
@@ -66,7 +66,7 @@
       outline-offset: 2px;
       outline-color: transparent;
       user-select: none;
-      margin-bottom: 0.7rem;
+      margin-bottom: 1rem;
     }
     fluent-button[hidden] {
       display: none !important;
@@ -96,19 +96,21 @@
     }
     #contactBtn {
       width: auto;
-      padding: 0.45rem 1.1rem;
-      font-size: 1rem;
+      padding: 1rem 1.8rem;
+      font-size: 1.1rem;
       border-radius: 6px;
-      background: #e1e1e1;
-      color: #333;
+      background: #0078d4;
+      color: white;
       box-shadow: none;
       transition: background-color 0.3s ease;
       cursor: pointer;
       user-select: none;
+      border: none;
+      font-weight: 600;
     }
     #contactBtn:hover {
-      background-color: #c7c7c7;
-      color: #0078d4;
+      background-color: #005a9e;
+      color: white;
     }
     #contactTooltip {
       visibility: hidden;
@@ -161,9 +163,9 @@
     <div id="errorMsg" role="alert" aria-live="assertive"></div>
 
     <div id="contactWrapper">
-      <fluent-button id="contactBtn" appearance="neutral" tabindex="0" aria-describedby="contactTooltip">
+      <button id="contactBtn" tabindex="0" aria-describedby="contactTooltip">
         Contact
-      </fluent-button>
+      </button>
       <div id="contactTooltip" role="tooltip">În lucru</div>
     </div>
   </div>
@@ -210,7 +212,7 @@
     });
 
     submitBtn.addEventListener("click", () => {
-      submitBtn.disabled = true; // previne multiple click-uri
+      submitBtn.disabled = true;
       validatePin();
     });
 
