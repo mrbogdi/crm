@@ -9,69 +9,83 @@
     body {
       margin: 0;
       font-family: "Segoe UI", sans-serif;
-      background: linear-gradient(to bottom right, #f3f3f3, #e1e1e1);
+      background: linear-gradient(135deg, #f3f3f3 0%, #e1e1e1 100%);
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
       color: #333;
     }
-
     #box {
       text-align: center;
       background: white;
-      padding: 2.5rem 3rem;
+      padding: 3rem 3.5rem;
       border-radius: 16px;
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.12);
       max-width: 420px;
       width: 100%;
+      user-select: none;
     }
-
     h1 {
-      font-size: 1.8rem;
-      margin-bottom: 1rem;
-    }
-
-    #countdown {
-      font-size: 2.2rem;
+      font-size: 1.9rem;
+      font-weight: 700;
+      margin-bottom: 0.8rem;
       color: #0078d4;
-      margin: 1rem 0;
-      font-weight: 600;
     }
-
-    fluent-text-field {
-      margin-top: 1rem;
-      width: 100%;
-    }
-
-    fluent-button {
-      margin-top: 1rem;
-      width: 100%;
-    }
-
     p {
-      font-size: 0.95rem;
-      color: #555;
+      font-size: 1rem;
+      color: #444;
+      margin: 0.2rem 0 1.5rem;
+    }
+    #countdown {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #0078d4;
+      margin: 1rem 0 2rem;
+      letter-spacing: 0.1em;
+      font-feature-settings: "tnum";
+    }
+    fluent-text-field {
+      width: 100%;
+      margin-bottom: 0.3rem;
+    }
+    fluent-button {
+      width: 100%;
+      font-weight: 600;
+      font-size: 1.1rem;
+      padding: 0.7rem 0;
+      user-select: none;
+    }
+    #errorMsg {
+      font-size: 0.9rem;
+      color: #d13438;
+      min-height: 1.2rem;
+      margin-top: 0.3rem;
+      user-select: none;
     }
   </style>
 </head>
 <body>
-  <div id="box">
-    <h1>🔧 Maintenance în desfășurare</h1>
-    <p>Platforma este temporar indisponibilă pentru îmbunătățiri.</p>
-    <div id="countdown">48:00:00</div>
+  <div id="box" role="main" aria-labelledby="mainTitle" aria-describedby="desc">
+    <h1 id="mainTitle" tabindex="0">🔧 Mentenanță</h1>
+    <p id="desc">Platforma este temporar indisponibilă pentru îmbunătățiri.</p>
+    <div id="countdown" aria-live="polite" aria-atomic="true">48:00:00</div>
 
     <p>Ai acces admin? Introdu codul PIN:</p>
-    <fluent-text-field id="adminPin" type="password" placeholder="PIN admin"></fluent-text-field>
-    <fluent-button appearance="accent" onclick="tryAccess()">Accesează platforma</fluent-button>
+    <fluent-text-field id="adminPin" type="password" placeholder="PIN admin" aria-label="Introdu PIN admin" inputmode="numeric" maxlength="6" ></fluent-text-field>
+    <fluent-button appearance="accent" onclick="tryAccess()" aria-describedby="errorMsg">Accesează platforma</fluent-button>
+    <div id="errorMsg" role="alert" aria-live="assertive"></div>
 
-    <p style="margin-top: 2rem;">Vă mulțumim pentru înțelegere.</p>
+    <p style="margin-top: 2rem; font-size: 0.9rem; color: #666;">
+      Vă mulțumim pentru înțelegere.
+    </p>
   </div>
 
   <script>
-    // Countdown 48h
     let secondsLeft = 48 * 60 * 60;
     const countdownEl = document.getElementById("countdown");
+    const errorMsg = document.getElementById("errorMsg");
+    const pinField = document.getElementById("adminPin");
 
     function updateCountdown() {
       const h = String(Math.floor(secondsLeft / 3600)).padStart(2, '0');
@@ -80,20 +94,26 @@
       countdownEl.textContent = `${h}:${m}:${s}`;
       if (secondsLeft > 0) secondsLeft--;
     }
-
     setInterval(updateCountdown, 1000);
     updateCountdown();
 
-    // PIN check
     function tryAccess() {
-      const pin = document.getElementById("adminPin").value.trim();
-      const correctPin = "1234"; // Schimbă cu un PIN real și sigur
-      if (pin === correctPin) {
-        window.location.href = "main.html";
+      errorMsg.textContent = '';
+      const pin = pinField.value.trim();
+      if (pin === '4455') {
+        window.location.href = "maintenance.html";
       } else {
-        alert("PIN greșit!");
+        errorMsg.textContent = 'PIN greșit, încearcă din nou.';
+        pinField.focus();
       }
     }
+
+    // Enter key support
+    pinField.addEventListener('keydown', e => {
+      if(e.key === 'Enter') {
+        tryAccess();
+      }
+    });
   </script>
 </body>
 </html>
