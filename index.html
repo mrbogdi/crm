@@ -1,179 +1,279 @@
 <!DOCTYPE html>
-<html lang="ro">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PINventory Dashboard</title>
-
-  <!-- Fluent UI Web Components -->
-  <script type="module" src="https://unpkg.com/@fluentui/web-components"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inventar Microsoft Style</title>
+  <link href="https://cdn.jsdelivr.net/npm/@fluentui/web-components/dist/web-components.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #eef1f6;
       margin: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: #f3f3f3;
     }
+
     header {
-      background-color: #0078d4;
+      background: #0078d4;
       color: white;
-      padding: 1rem 2rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      padding: 0.8rem 2rem;
     }
-    .container {
-      max-width: 800px;
-      margin: 2rem auto;
-      background: white;
-      padding: 2rem;
-      border-radius: 16px;
-      box-shadow: 0 6px 24px rgba(0,0,0,0.1);
+
+    header h1 {
+      margin: 0;
+      font-size: 1.5rem;
     }
-    .product-card {
-      border: 1px solid #ddd;
-      border-radius: 12px;
-      padding: 1rem;
-      margin-bottom: 1rem;
-      background: #f9f9f9;
-    }
-    .row {
+
+    nav {
       display: flex;
       gap: 1rem;
-      flex-wrap: wrap;
     }
-    .row > * {
-      flex: 1;
-      min-width: 180px;
+
+    nav button {
+      background: white;
+      color: #0078d4;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
     }
-    #dashboardView {
-      display: none;
+
+    main {
+      max-width: 900px;
+      margin: auto;
+      padding: 2rem;
     }
+
+    .login-modal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex; justify-content: center; align-items: center;
+      z-index: 9999;
+    }
+
+    .login-box {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+    }
+
+    .login-box input {
+      font-size: 1.2rem;
+      padding: 0.5rem;
+      margin: 1rem 0;
+      width: 100%;
+    }
+
+    .card {
+      background: white;
+      padding: 1rem;
+      margin: 1rem 0;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    .dashboard {
+      margin-top: 3rem;
+    }
+
     canvas {
-      margin-top: 2rem;
+      max-width: 100%;
+      margin-top: 1rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 1rem;
+    }
+
+    .form-group input, .form-group select {
+      padding: 0.5rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    button.add-btn {
+      background-color: #0078d4;
+      color: white;
+      padding: 0.6rem 1.2rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
+  <div class="login-modal" id="loginModal">
+    <div class="login-box">
+      <h2>Login cu PIN</h2>
+      <input type="password" id="pinInput" placeholder="Introdu PIN-ul" />
+      <button onclick="verifyPin()">Autentificare</button>
+      <p id="loginError" style="color: red;"></p>
+    </div>
+  </div>
+
   <header>
-    <h2>📊 PINventory</h2>
-    <fluent-select id="menu" style="width: 200px;">
-      <fluent-option value="inventory">📦 Inventar</fluent-option>
-      <fluent-option value="dashboard">📈 Dashboard</fluent-option>
-      <fluent-option value="export">⬇️ Export</fluent-option>
-      <fluent-option value="import">⬆️ Import</fluent-option>
-    </fluent-select>
+    <h1>Inventar</h1>
+    <nav>
+      <button onclick="switchTab('inventar')">Inventar</button>
+      <button onclick="switchTab('dashboard')">Dashboard</button>
+      <button onclick="exportData()">Export</button>
+      <button onclick="importData()">Import</button>
+    </nav>
   </header>
 
-  <div class="container" id="inventoryView">
-    <h3>Adaugă produs</h3>
-    <div class="row">
-      <fluent-text-field id="name" placeholder="Nume produs"></fluent-text-field>
-      <fluent-number-field id="qty" placeholder="Cantitate"></fluent-number-field>
-      <fluent-number-field id="price" placeholder="Preț (RON)"></fluent-number-field>
-    </div>
-    <fluent-text-area id="note" placeholder="Note"></fluent-text-area>
-    <fluent-button appearance="accent" onclick="addProduct()" style="margin-top: 1rem;">Adaugă</fluent-button>
+  <main>
+    <section id="inventarTab">
+      <div class="form-group">
+        <label>Produs:</label>
+        <input type="text" id="productName" placeholder="Nume produs" />
+      </div>
+      <div class="form-group">
+        <label>Categorie:</label>
+        <select id="productCategory">
+          <option>Electronice</option>
+          <option>Consumabile</option>
+          <option>Mobilier</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Cantitate:</label>
+        <input type="number" id="productQty" placeholder="Cantitate" />
+      </div>
+      <button class="add-btn" onclick="addProduct()">Adaugă Produs</button>
 
-    <h3 style="margin-top: 2rem;">Produse existente</h3>
-    <div id="productList"></div>
-  </div>
+      <div id="productList"></div>
+    </section>
 
-  <div class="container" id="dashboardView">
-    <h3>📈 Dashboard</h3>
-    <canvas id="productChart" height="120"></canvas>
-    <canvas id="valueChart" height="120"></canvas>
-  </div>
+    <section class="dashboard" id="dashboardTab" style="display: none;">
+      <h2>Statistici Avansate</h2>
+      <canvas id="barChart"></canvas>
+      <canvas id="pieChart"></canvas>
+    </section>
+  </main>
+
+  <input type="file" id="fileInput" style="display: none;" />
 
   <script>
-    let products = [];
+    const correctPIN = "1234"; // schimbă PIN-ul aici
 
-    const menu = document.getElementById('menu');
-    const inventoryView = document.getElementById('inventoryView');
-    const dashboardView = document.getElementById('dashboardView');
-
-    menu.addEventListener('change', async (e) => {
-      const val = e.target.value;
-      if (val === 'inventory') {
-        inventoryView.style.display = 'block';
-        dashboardView.style.display = 'none';
-      } else if (val === 'dashboard') {
-        inventoryView.style.display = 'none';
-        dashboardView.style.display = 'block';
-        renderCharts();
-      } else if (val === 'export') {
-        const data = JSON.stringify(products);
-        const blob = new Blob([data], {type: 'application/json'});
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = 'pinventory.json';
-        link.click();
-      } else if (val === 'import') {
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = '.json';
-        input.onchange = e => {
-          const file = e.target.files[0];
-          const reader = new FileReader();
-          reader.onload = () => {
-            products = JSON.parse(reader.result);
-            renderProducts();
-          };
-          reader.readAsText(file);
-        };
-        input.click();
+    function verifyPin() {
+      const input = document.getElementById("pinInput").value;
+      if (input === correctPIN) {
+        document.getElementById("loginModal").style.display = "none";
+      } else {
+        document.getElementById("loginError").textContent = "PIN incorect.";
       }
-    });
+    }
+
+    const products = [];
 
     function addProduct() {
-      const name = document.getElementById("name").value;
-      const qty = parseInt(document.getElementById("qty").value);
-      const price = parseFloat(document.getElementById("price").value);
-      const note = document.getElementById("note").value;
-      if (!name || isNaN(qty) || isNaN(price)) return alert("Completează toate câmpurile!");
-      products.push({ name, qty, price, note });
-      renderProducts();
+      const name = document.getElementById("productName").value;
+      const cat = document.getElementById("productCategory").value;
+      const qty = parseInt(document.getElementById("productQty").value);
+
+      if (!name || !qty) return alert("Completează toate câmpurile.");
+
+      products.push({ name, cat, qty });
+      updateList();
+      updateCharts();
     }
 
-    function renderProducts() {
-      const list = document.getElementById("productList");
-      list.innerHTML = "";
+    function updateList() {
+      const container = document.getElementById("productList");
+      container.innerHTML = '';
       products.forEach((p, i) => {
-        const div = document.createElement("div");
-        div.className = "product-card";
-        div.innerHTML = `
-          <b>${p.name}</b><br>
-          Cantitate: ${p.qty} × ${p.price.toFixed(2)} RON<br>
-          <small>${p.note || ""}</small>
+        container.innerHTML += `
+          <div class="card">
+            <strong>${p.name}</strong><br/>
+            Categorie: ${p.cat}<br/>
+            Cantitate: ${p.qty}
+          </div>
         `;
-        list.appendChild(div);
       });
     }
 
-    function renderCharts() {
-      const labels = products.map(p => p.name);
-      const qtys = products.map(p => p.qty);
-      const vals = products.map(p => p.qty * p.price);
-
-      new Chart(document.getElementById('productChart').getContext('2d'), {
-        type: 'bar',
-        data: {
-          labels,
-          datasets: [{ label: 'Cantități', data: qtys, backgroundColor: '#0078d4' }]
-        },
-        options: { responsive: true }
+    function updateCharts() {
+      const categories = {};
+      products.forEach(p => {
+        categories[p.cat] = (categories[p.cat] || 0) + p.qty;
       });
 
-      new Chart(document.getElementById('valueChart').getContext('2d'), {
-        type: 'pie',
+      const labels = Object.keys(categories);
+      const data = Object.values(categories);
+
+      if (window.barChart) window.barChart.destroy();
+      if (window.pieChart) window.pieChart.destroy();
+
+      window.barChart = new Chart(document.getElementById("barChart"), {
+        type: "bar",
         data: {
           labels,
-          datasets: [{ label: 'Valoare RON', data: vals, backgroundColor: ['#0078d4','#2b88d8','#71afe5','#c7e0f4','#e5f1fb'] }]
-        },
-        options: { responsive: true }
+          datasets: [{
+            label: "Produse pe categorie",
+            data,
+            backgroundColor: "#0078d4"
+          }]
+        }
+      });
+
+      window.pieChart = new Chart(document.getElementById("pieChart"), {
+        type: "pie",
+        data: {
+          labels,
+          datasets: [{
+            label: "Distribuție",
+            data,
+            backgroundColor: ["#0078d4", "#00b7c3", "#ffb900"]
+          }]
+        }
       });
     }
+
+    function switchTab(tab) {
+      document.getElementById("inventarTab").style.display = tab === "inventar" ? "block" : "none";
+      document.getElementById("dashboardTab").style.display = tab === "dashboard" ? "block" : "none";
+    }
+
+    function exportData() {
+      const data = JSON.stringify(products);
+      const blob = new Blob([data], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "inventar.json";
+      a.click();
+    }
+
+    function importData() {
+      document.getElementById("fileInput").click();
+    }
+
+    document.getElementById("fileInput").addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        const data = JSON.parse(event.target.result);
+        products.length = 0;
+        products.push(...data);
+        updateList();
+        updateCharts();
+      };
+      reader.readAsText(file);
+    });
   </script>
 </body>
 </html>
