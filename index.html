@@ -3,144 +3,24 @@
 <head>
   <meta charset="UTF-8" />
   <title>CRM</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Segoe+UI:400,700&display=swap" />
   <style>
-    html, body { height: 100%; margin: 0; background: #f3f2f1; font-family: 'Segoe UI', Arial, sans-serif; }
-    #root { min-height: 100vh; }
-    .centered-card {
-      max-width: 370px;
-      margin: 90px auto 0 auto;
-      background: #fff;
-      border-radius: 18px;
-      box-shadow: 0 8px 40px #0003, 0 1.5px 7px #00c85322;
-      padding: 36px 28px 28px 28px;
-      position: relative;
-      animation: fadeInUp 0.7s cubic-bezier(.23,1.01,.32,1) 1;
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f3f2f1;
     }
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(40px);}
-      to { opacity: 1; transform: translateY(0);}
+    #root {
+      min-height: 100vh;
     }
-    .pin-lock {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 18px;
-      position: relative;
-    }
-    .pin-lock svg {
-      width: 56px; height: 56px;
-      transition: filter .2s, box-shadow .2s;
-      filter: drop-shadow(0 0 0 #00c85300);
-      cursor: pointer;
-    }
-    .pin-lock svg:hover {
-      filter: drop-shadow(0 0 8px #00c853cc);
-    }
-    .pin-lock .lock-tooltip {
-      display: none;
-      position: absolute;
-      bottom: -34px; left: 50%; transform: translateX(-50%);
-      background: #222;
-      color: #fff;
-      padding: 6px 14px;
-      border-radius: 7px;
-      font-size: 13px;
-      white-space: nowrap;
-      box-shadow: 0 2px 8px #0003;
-      z-index: 10;
-    }
-    .pin-lock:hover .lock-tooltip { display: block; }
-    .pin-box {
-      border: 2.5px solid #00c853;
-      border-radius: 12px;
-      padding: 22px 18px 14px 18px;
-      margin-bottom: 18px;
-      background: linear-gradient(120deg,#f3f2f1 70%,#e8f5e9 100%);
-      box-shadow: 0 2px 12px #00c85311;
-      transition: box-shadow .2s, border-color .2s;
-    }
-    .pin-box:focus-within {
-      border-color: #2962ff;
-      box-shadow: 0 0 0 2.5px #2962ff44;
-      background: linear-gradient(120deg,#e3f2fd 70%,#e8f5e9 100%);
-    }
-    .pin-title {
-      text-align: center;
-      font-size: 1.5rem;
-      font-weight: 700;
-      margin-bottom: 6px;
-      letter-spacing: .4px;
-      color: #222;
-    }
-    .pin-sub {
-      text-align: center;
-      font-size: 1.04rem;
-      color: #555;
-      margin-bottom: 16px;
-      letter-spacing: .2px;
-    }
-    .app-shell {
-      max-width: 950px;
-      margin: 40px auto;
-      background: #fff;
-      border-radius: 16px;
-      box-shadow: 0 4px 24px #0002;
-      padding: 40px 32px 32px 32px;
-      min-height: 80vh;
-      position: relative;
-    }
-    .header-flex {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 32px;
-    }
-    .corporate-bar {
-      width: 100vw;
-      left: 0; top: 0;
-      background: linear-gradient(90deg,#00c853 0,#2962ff 100%);
-      height: 7px;
-      border-radius: 0 0 12px 12px;
-      position: absolute;
-      z-index: 2;
-      box-shadow: 0 2px 10px #00c85333;
-    }
-    .footer-corp {
-      margin-top: 44px; font-size: 13px; color: #888; text-align: right;
-      opacity: .7;
-    }
-    @media (max-width: 600px) {
-      .app-shell { padding: 10px; }
-      .centered-card { margin: 24px auto; padding: 20px 5px 14px 5px; }
-    }
-    .fancy-btn {
-      background: linear-gradient(90deg,#00c853 0,#2962ff 100%);
-      color: #fff !important;
-      border: none !important;
-      font-weight: 700;
-      letter-spacing: .3px;
-      box-shadow: 0 2px 8px #00c85333;
-      transition: background .18s, box-shadow .18s;
-    }
-    .fancy-btn:hover {
-      background: linear-gradient(90deg,#2962ff 0,#00c853 100%);
-      box-shadow: 0 4px 18px #2962ff33;
-    }
-    .detailslist-corp .ms-DetailsHeader-cell {
-      background: #e8f5e9;
-      font-weight: 700;
-      color: #222;
-      border-bottom: 1.5px solid #00c85355;
-    }
-    .detailslist-corp .ms-DetailsRow-fields { font-size: 1.01rem; }
+    /* Include aici stiluri adăugate ulterior dacă vrei o separare în fișier extern */
   </style>
 </head>
 <body>
   <div id="root"></div>
   <script type="module">
-    // Import React, ReactDOM, Fluent UI, crypto-js, bcryptjs din CDN
     import React, { useState, useEffect, useRef } from "https://esm.sh/react@18.2.0";
     import { createRoot } from "https://esm.sh/react-dom@18.2.0/client";
     import {
@@ -148,25 +28,23 @@
       PrimaryButton,
       DefaultButton,
       DetailsList,
-      Panel,
       MessageBar,
       MessageBarType,
-      initializeIcons,
       Stack,
-      IconButton,
       Dropdown,
-      Spinner
+      initializeIcons
     } from "https://esm.sh/@fluentui/react@8.115.3";
     import * as CryptoJS from "https://esm.sh/crypto-js@4.2.0";
     import bcrypt from "https://esm.sh/bcryptjs@2.4.3";
+
     initializeIcons();
 
-    // --- CONSTANTE ---
+    // CONSTANTE
     const PIN_HASH_KEY = "pinventory_pin_hash";
     const DATA_KEY = "pinventory_products";
     const THEME_KEY = "pinventory_theme";
 
-    // --- UTILS ---
+    // UTILITARE
     function hashPin(pin) {
       const salt = bcrypt.genSaltSync(10);
       return bcrypt.hashSync(pin, salt);
@@ -180,8 +58,7 @@
     function decryptData(cipher, pin) {
       try {
         const bytes = CryptoJS.AES.decrypt(cipher, pin);
-        const str = bytes.toString(CryptoJS.enc.Utf8);
-        return JSON.parse(str);
+        return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
       } catch {
         return null;
       }
@@ -194,30 +71,23 @@
       return localStorage.getItem(THEME_KEY) || "light";
     }
 
-    // --- COMPONENTE ---
+    // COMPONENTE
     function AuthScreen({ onAuth }) {
       const [pin, setPin] = useState("");
-      const [pin2, setPin2] = useState(""); // confirmare la setare
-      const [error, setError] = useState("");
+      const [pin2, setPin2] = useState("");
       const [step, setStep] = useState(localStorage.getItem(PIN_HASH_KEY) ? "login" : "set");
-      const [showSuccess, setShowSuccess] = useState(false);
-      const pinInput = useRef();
-
-      useEffect(() => { pinInput.current?.focus(); }, [step]);
+      const [error, setError] = useState("");
 
       function handleSubmit() {
-        setError("");
         if (step === "set") {
           if (pin.length < 4) return setError("PIN-ul trebuie să aibă minim 4 cifre.");
           if (pin !== pin2) return setError("PIN-urile nu coincid.");
           localStorage.setItem(PIN_HASH_KEY, hashPin(pin));
-          setShowSuccess(true);
-          setTimeout(() => onAuth(pin), 900);
+          onAuth(pin);
         } else {
           const hash = localStorage.getItem(PIN_HASH_KEY);
           if (verifyPin(pin, hash)) {
-            setShowSuccess(true);
-            setTimeout(() => onAuth(pin), 700);
+            onAuth(pin);
           } else {
             setError("PIN greșit!");
           }
@@ -225,86 +95,42 @@
       }
 
       return (
-        <div className="centered-card">
-          <div className="pin-lock">
-            <svg viewBox="0 0 56 56" tabIndex="0" aria-label="Securizat" style={{ outline: "none" }}>
-              <circle cx="28" cy="28" r="27" fill="#fff" stroke="#00c853" strokeWidth="2.5"/>
-              <rect x="17" y="25" width="22" height="16" rx="5" fill="#e8f5e9" stroke="#00c853" strokeWidth="2.2"/>
-              <rect x="23.5" y="16" width="9" height="12" rx="4.5" fill="#fff" stroke="#00c853" strokeWidth="2"/>
-              <ellipse cx="28" cy="35.5" rx="1.5" ry="2.5" fill="#00c853"/>
-              <rect x="26.5" y="32" width="3" height="6" rx="1.5" fill="#00c853" />
-            </svg>
-            <span className="lock-tooltip">Datele sunt criptate local cu AES-256</span>
-          </div>
-          <div className="pin-box" tabIndex="0">
-            <div className="pin-title">
-              {step === "set" ? "Setează PIN-ul" : "Autentificare"}
-            </div>
-            <div className="pin-sub">
-              {step === "set"
-                ? "Alege un PIN de acces (minim 4 cifre)."
-                : "Introdu PIN-ul pentru a debloca aplicația."}
-            </div>
-            <TextField
-              label="PIN"
-              type="password"
-              canRevealPassword
-              value={pin}
-              componentRef={pinInput}
-              onChange={(_, v) => setPin(v.replace(/\D/g, ""))}
-              onKeyDown={e => e.key === "Enter" && handleSubmit()}
-              autoComplete="off"
-              required
-              styles={{
-                field: { letterSpacing: "0.18em", fontWeight: 700, fontSize: "1.18em", color: "#222" }
-              }}
-            />
-            {step === "set" &&
-              <TextField
-                label="Confirmă PIN"
-                type="password"
-                canRevealPassword
-                value={pin2}
-                onChange={(_, v) => setPin2(v.replace(/\D/g, ""))}
-                onKeyDown={e => e.key === "Enter" && handleSubmit()}
-                autoComplete="off"
-                required
-                styles={{
-                  field: { letterSpacing: "0.18em", fontWeight: 700, fontSize: "1.18em", color: "#222" }
-                }}
-              />
-            }
-            {error && <MessageBar messageBarType={MessageBarType.error} styles={{ root: { marginTop: 10 } }}>{error}</MessageBar>}
-            {showSuccess &&
-              <MessageBar messageBarType={MessageBarType.success} styles={{ root: { marginTop: 10, background: "#e8f5e9" } }}>
-                <b>Acces securizat!</b> Se deblochează...
-              </MessageBar>
-            }
-            <PrimaryButton
-              text={step === "set" ? "Setează PIN" : "Intră"}
-              className="fancy-btn"
-              styles={{ root: { marginTop: 18, width: "100%" } }}
-              onClick={handleSubmit}
-              disabled={showSuccess}
-            />
-            {step === "login" &&
-              <DefaultButton
-                text="Resetare aplicație"
-                styles={{ root: { marginTop: 10, width: "100%" } }}
-                onClick={() => {
-                  if (confirm("Atenție! Se vor șterge toate datele și PIN-ul. Continuă?")) {
-                    localStorage.clear();
-                    window.location.reload();
-                  }
-                }}
-              />
-            }
-          </div>
-          <div style={{ textAlign: "center", marginTop: 16, fontSize: 13, color: "#00c853" }}>
-            <b>Securizat AES-256</b> · <b>100% offline</b>
-          </div>
+        <div style={{ maxWidth: 400, margin: "100px auto", padding: 20, background: "#fff", borderRadius: 10 }}>
+          <h2>{step === "set" ? "Setează PIN-ul" : "Autentificare"}</h2>
+          <TextField label="PIN" type="password" value={pin} onChange={(_, v) => setPin(v)} />
+          {step === "set" && (
+            <TextField label="Confirmă PIN" type="password" value={pin2} onChange={(_, v) => setPin2(v)} />
+          )}
+          {error && <MessageBar messageBarType={MessageBarType.error}>{error}</MessageBar>}
+          <PrimaryButton text={step === "set" ? "Setează PIN" : "Autentificare"} onClick={handleSubmit} styles={{ root: { marginTop: 12 } }} />
+          {step === "login" && (
+            <DefaultButton text="Resetare" onClick={() => {
+              if (confirm("Ștergi toate datele?")) {
+                localStorage.clear();
+                window.location.reload();
+              }
+            }} styles={{ root: { marginTop: 10 } }} />
+          )}
         </div>
       );
+    }
+
+    function ProductList({ products, onEdit, onDelete }) {
+      const columns = [
+        { key: 'nume', name: 'Nume', fieldName: 'nume', minWidth: 100 },
+        { key: 'cant', name: 'Cantitate', fieldName: 'cant', minWidth: 80 },
+        { key: 'pret', name: 'Preț (lei)', fieldName: 'pret', minWidth: 80 },
+        { key: 'note', name: 'Note', fieldName: 'note', minWidth: 100 },
+        {
+          key: 'actions', name: 'Acțiuni', minWidth: 140, onRender: item => (
+            <Stack horizontal tokens={{ childrenGap: 6 }}>
+              <DefaultButton text="Editează" onClick={() => onEdit(item)} />
+              <DefaultButton text="Șterge" onClick={() => onDelete(item)} />
+            </Stack>
+          )
+        }
+      ];
+      return <DetailsList items={products} columns={columns} />;
     }
 
     function ProductForm({ product, onSave, onCancel }) {
@@ -314,192 +140,106 @@
       const [note, setNote] = useState(product?.note || "");
       const [error, setError] = useState("");
 
-      function handleSave() {
-        if (!nume.trim() || !cant || !pret) {
-          setError("Completează toate câmpurile obligatorii.");
-          return;
-        }
-        if (+cant < 0 || +pret < 0) {
-          setError("Cantitatea și prețul trebuie să fie pozitive.");
+      function save() {
+        if (!nume || !cant || !pret) {
+          setError("Toate câmpurile sunt obligatorii.");
           return;
         }
         onSave({
           id: product?.id || Date.now(),
-          nume: nume.trim(),
-          cant: +cant,
-          pret: +pret,
-          note: note.trim()
+          nume, cant: +cant, pret: +pret, note
         });
       }
 
       return (
-        <Stack tokens={{ childrenGap: 12 }}>
-          <TextField label="Nume produs" value={nume} onChange={(_, v) => setNume(v)} required />
-          <TextField label="Cantitate" type="number" min={0} value={cant} onChange={(_, v) => setCant(v)} required />
-          <TextField label="Preț unitar" type="number" min={0} value={pret} onChange={(_, v) => setPret(v)} required />
-          <TextField label="Notițe" value={note} onChange={(_, v) => setNote(v)} />
+        <Stack tokens={{ childrenGap: 10 }}>
+          <TextField label="Nume" value={nume} onChange={(_, v) => setNume(v)} required />
+          <TextField label="Cantitate" value={cant} onChange={(_, v) => setCant(v)} type="number" required />
+          <TextField label="Preț" value={pret} onChange={(_, v) => setPret(v)} type="number" required />
+          <TextField label="Note" value={note} onChange={(_, v) => setNote(v)} />
           {error && <MessageBar messageBarType={MessageBarType.error}>{error}</MessageBar>}
           <Stack horizontal tokens={{ childrenGap: 8 }}>
-            <PrimaryButton text="Salvează" className="fancy-btn" onClick={handleSave} />
+            <PrimaryButton text="Salvează" onClick={save} />
             <DefaultButton text="Renunță" onClick={onCancel} />
           </Stack>
         </Stack>
       );
     }
 
-    function ProductList({ products, onEdit, onDelete }) {
-      const columns = [
-        { key: "col1", name: "Nume", fieldName: "nume", minWidth: 120, isResizable: true },
-        { key: "col2", name: "Cantitate", fieldName: "cant", minWidth: 60, isResizable: true },
-        { key: "col3", name: "Preț", fieldName: "pret", minWidth: 60, isResizable: true, onRender: p => p.pret + " lei" },
-        { key: "col4", name: "Notițe", fieldName: "note", minWidth: 100, isResizable: true },
-        {
-          key: "col5", name: "Acțiuni", minWidth: 120, onRender: item => (
-            <Stack horizontal tokens={{ childrenGap: 8 }}>
-              <DefaultButton text="Editează" onClick={() => onEdit(item)} />
-              <DefaultButton text="Șterge" onClick={() => onDelete(item)} />
-            </Stack>
-          )
-        }
-      ];
-      return (
-        <DetailsList
-          items={products}
-          columns={columns}
-          styles={{ root: { marginTop: 12 } }}
-          className="detailslist-corp"
-        />
-      );
-    }
-
     function ThemeSwitcher({ theme, setTheme }) {
-      const options = [
-        { key: "light", text: "Light" },
-        { key: "dark", text: "Dark" }
-      ];
       return (
         <Dropdown
-          label={null}
+          label="Temă"
           selectedKey={theme}
-          options={options}
-          onChange={(_, o) => { setTheme(o.key); saveTheme(o.key); }}
-          styles={{ dropdown: { width: 90, minWidth: 90 } }}
+          options={[{ key: 'light', text: 'Light' }, { key: 'dark', text: 'Dark' }]}
+          onChange={(_, o) => {
+            setTheme(o.key);
+            saveTheme(o.key);
+          }}
+          styles={{ dropdown: { width: 100 } }}
         />
       );
     }
 
-    function MainScreen({ pin, onLogout }) {
+    function MainApp({ pin, onLogout }) {
       const [products, setProducts] = useState([]);
-      const [showForm, setShowForm] = useState(false);
-      const [editProd, setEditProd] = useState(null);
-      const [msg, setMsg] = useState("");
+      const [editing, setEditing] = useState(null);
+      const [formVisible, setFormVisible] = useState(false);
       const [theme, setTheme] = useState(getTheme());
-      const [loading, setLoading] = useState(true);
 
       useEffect(() => {
         saveTheme(theme);
-        const enc = localStorage.getItem(DATA_KEY);
-        if (enc) {
-          const data = decryptData(enc, pin);
+        const raw = localStorage.getItem(DATA_KEY);
+        if (raw) {
+          const data = decryptData(raw, pin);
           if (data) setProducts(data);
         }
-        setLoading(false);
-      }, [pin, theme]);
+      }, [pin]);
 
-      function saveProducts(newList) {
+      function saveList(newList) {
         setProducts(newList);
         localStorage.setItem(DATA_KEY, encryptData(newList, pin));
       }
 
-      function handleSave(prod) {
-        let newList;
-        if (editProd) {
-          newList = products.map(p => p.id === prod.id ? prod : p);
-          setMsg("Produs actualizat!");
-        } else {
-          newList = [...products, prod];
-          setMsg("Produs adăugat!");
-        }
-        saveProducts(newList);
-        setShowForm(false);
-        setEditProd(null);
-        setTimeout(() => setMsg(""), 2000);
+      function handleSave(product) {
+        const updated = editing
+          ? products.map(p => p.id === product.id ? product : p)
+          : [...products, product];
+        saveList(updated);
+        setEditing(null);
+        setFormVisible(false);
       }
 
-      function handleDelete(prod) {
-        if (confirm(`Ștergi produsul "${prod.nume}"?`)) {
-          saveProducts(products.filter(p => p.id !== prod.id));
-          setMsg("Produs șters!");
-          setTimeout(() => setMsg(""), 2000);
-        }
+      function handleDelete(product) {
+        const rest = products.filter(p => p.id !== product.id);
+        saveList(rest);
       }
-
-      useEffect(() => {
-        document.body.style.background = theme === "dark" ? "#1b1a19" : "#f3f2f1";
-        document.body.style.color = theme === "dark" ? "#fff" : "#222";
-      }, [theme]);
 
       return (
-        <div className="app-shell" style={{ background: theme === "dark" ? "#252423" : "#fff", color: theme === "dark" ? "#fff" : "#222" }}>
-          <div className="corporate-bar"></div>
-          <div className="header-flex">
-            <Stack horizontal verticalAlign="center" tokens={{ childrenGap: 16 }}>
-              <img src="https://img.icons8.com/color/48/lock--v1.png" alt="logo" style={{ width: 38, height: 38, marginRight: 3 }} />
-              <span style={{ fontWeight: 700, fontSize: 26, letterSpacing: 0.5 }}>PINventory</span>
-              <span style={{
-                fontSize: 15,
-                color: "#00c853",
-                fontWeight: 700,
-                letterSpacing: ".2px",
-                marginLeft: 12,
-                background: "#e8f5e9",
-                borderRadius: 7,
-                padding: "2.5px 13px"
-              }}>SECURE</span>
-            </Stack>
-            <Stack horizontal tokens={{ childrenGap: 8 }} verticalAlign="center">
-              <ThemeSwitcher theme={theme} setTheme={setTheme} />
-              <IconButton iconProps={{ iconName: "Leave" }} title="Logout" ariaLabel="Logout" onClick={onLogout} />
-            </Stack>
-          </div>
-          <PrimaryButton
-            text="Adaugă produs"
-            iconProps={{ iconName: "Add" }}
-            className="fancy-btn"
-            onClick={() => { setShowForm(true); setEditProd(null); }}
-          />
-          {msg && <MessageBar messageBarType={MessageBarType.success} styles={{ root: { margin: "18px 0" } }}>{msg}</MessageBar>}
-          {loading
-            ? <Spinner label="Se încarcă..." />
-            : <ProductList products={products} onEdit={p => { setEditProd(p); setShowForm(true); }} onDelete={handleDelete} />
-          }
-          <Panel
-            isOpen={showForm}
-            onDismiss={() => { setShowForm(false); setEditProd(null); }}
-            headerText={editProd ? "Editează produs" : "Adaugă produs"}
-            closeButtonAriaLabel="Închide"
-            isLightDismiss
-          >
-            <ProductForm product={editProd} onSave={handleSave} onCancel={() => { setShowForm(false); setEditProd(null); }} />
-          </Panel>
-          <div className="footer-corp">
-            <span>
-              <b>CorpReady™</b> · 100% offline · Date criptate local · Fără cloud ·
-              <a href="https://github.com/" target="_blank" rel="noopener" style={{ color: theme === "dark" ? "#fff" : "#222", marginLeft: 8 }}>GitHub</a>
-            </span>
-          </div>
+        <div style={{ maxWidth: 800, margin: "40px auto", padding: 20, background: "#fff", borderRadius: 12 }}>
+          <Stack horizontal horizontalAlign="space-between">
+            <h2>Inventar Produse</h2>
+            <ThemeSwitcher theme={theme} setTheme={setTheme} />
+          </Stack>
+          <PrimaryButton text="Adaugă produs" onClick={() => { setEditing(null); setFormVisible(true); }} />
+          {formVisible && (
+            <ProductForm
+              product={editing}
+              onSave={handleSave}
+              onCancel={() => { setEditing(null); setFormVisible(false); }}
+            />
+          )}
+          <ProductList products={products} onEdit={p => { setEditing(p); setFormVisible(true); }} onDelete={handleDelete} />
+          <DefaultButton text="Deconectare" onClick={onLogout} styles={{ root: { marginTop: 20 } }} />
         </div>
       );
     }
 
     function App() {
       const [pin, setPin] = useState(null);
-
-      return (
-        pin
-          ? <MainScreen pin={pin} onLogout={() => setPin(null)} />
-          : <AuthScreen onAuth={setPin} />
-      );
+      return pin
+        ? <MainApp pin={pin} onLogout={() => setPin(null)} />
+        : <AuthScreen onAuth={setPin} />;
     }
 
     createRoot(document.getElementById("root")).render(<App />);
