@@ -1,248 +1,203 @@
 <!DOCTYPE html>
-<html lang="ro">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>CRM</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Segoe+UI:400,700&display=swap" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PINventory</title>
+  
+  <!-- Fluent UI Web Components -->
+  <script type="module" src="https://unpkg.com/@fluentui/web-components"></script>
+  
   <style>
-    html, body {
-      height: 100%;
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f3f3f3;
       margin: 0;
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background: #f3f2f1;
+      padding: 2rem;
     }
-    #root {
-      min-height: 100vh;
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
-    /* Include aici stiluri adăugate ulterior dacă vrei o separare în fișier extern */
+    .product {
+      border-bottom: 1px solid #ddd;
+      padding: 1rem 0;
+    }
+    .actions {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 1rem;
+    }
+    .hidden {
+      display: none;
+    }
   </style>
 </head>
 <body>
-  <div id="root"></div>
-  <script type="module">
-    import React, { useState, useEffect, useRef } from "https://esm.sh/react@18.2.0";
-    import { createRoot } from "https://esm.sh/react-dom@18.2.0/client";
-    import {
-      TextField,
-      PrimaryButton,
-      DefaultButton,
-      DetailsList,
-      MessageBar,
-      MessageBarType,
-      Stack,
-      Dropdown,
-      initializeIcons
-    } from "https://esm.sh/@fluentui/react@8.115.3";
-    import * as CryptoJS from "https://esm.sh/crypto-js@4.2.0";
-    import bcrypt from "https://esm.sh/bcryptjs@2.4.3";
 
-    initializeIcons();
+  <div class="container">
+    <h2>🔐 PINventory</h2>
+    
+    <!-- PIN Screen -->
+    <div id="pinScreen">
+      <p id="pinMessage">Setează un PIN pentru aplicație:</p>
+      <fluent-text-field id="pinInput" type="password" placeholder="PIN (minim 4 cifre)"></fluent-text-field>
+      <fluent-button appearance="accent" style="margin-top: 1rem;" onclick="handlePin()">Continuă</fluent-button>
+    </div>
+    
+    <!-- App Screen -->
+    <div id="appScreen" class="hidden">
+      <fluent-text-field id="name" placeholder="Nume produs"></fluent-text-field>
+      <fluent-number-field id="qty" placeholder="Cantitate"></fluent-number-field>
+      <fluent-number-field id="price" placeholder="Preț (RON)"></fluent-number-field>
+      <fluent-text-area id="note" placeholder="Note" style="margin-bottom: 1rem;"></fluent-text-area>
+      <fluent-button appearance="accent" onclick="addProduct()">Adaugă produs</fluent-button>
 
-    // CONSTANTE
-    const PIN_HASH_KEY = "pinventory_pin_hash";
-    const DATA_KEY = "pinventory_products";
-    const THEME_KEY = "pinventory_theme";
+      <hr style="margin: 2rem 0;" />
 
-    // UTILITARE
-    function hashPin(pin) {
-      const salt = bcrypt.genSaltSync(10);
-      return bcrypt.hashSync(pin, salt);
-    }
-    function verifyPin(pin, hash) {
-      return bcrypt.compareSync(pin, hash);
-    }
-    function encryptData(data, pin) {
-      return CryptoJS.AES.encrypt(JSON.stringify(data), pin).toString();
-    }
-    function decryptData(cipher, pin) {
-      try {
-        const bytes = CryptoJS.AES.decrypt(cipher, pin);
-        return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
-      } catch {
-        return null;
-      }
-    }
-    function saveTheme(theme) {
-      localStorage.setItem(THEME_KEY, theme);
-      document.body.style.background = theme === "dark" ? "#1b1a19" : "#f3f2f1";
-    }
-    function getTheme() {
-      return localStorage.getItem(THEME_KEY) || "light";
+      <div id="productList"></div>
+    </div>
+  </div>
+
+  <script>
+    // --- Simple Crypto (AES)
+    async function digestMessage(msg) {
+      const encoder = new TextEncoder();
+      const data = encoder.encode(msg);
+      return window.crypto.subtle.digest('SHA-256', data);
     }
 
-    // COMPONENTE
-    function AuthScreen({ onAuth }) {
-      const [pin, setPin] = useState("");
-      const [pin2, setPin2] = useState("");
-      const [step, setStep] = useState(localStorage.getItem(PIN_HASH_KEY) ? "login" : "set");
-      const [error, setError] = useState("");
-
-      function handleSubmit() {
-        if (step === "set") {
-          if (pin.length < 4) return setError("PIN-ul trebuie să aibă minim 4 cifre.");
-          if (pin !== pin2) return setError("PIN-urile nu coincid.");
-          localStorage.setItem(PIN_HASH_KEY, hashPin(pin));
-          onAuth(pin);
-        } else {
-          const hash = localStorage.getItem(PIN_HASH_KEY);
-          if (verifyPin(pin, hash)) {
-            onAuth(pin);
-          } else {
-            setError("PIN greșit!");
-          }
-        }
-      }
-
-      return (
-        <div style={{ maxWidth: 400, margin: "100px auto", padding: 20, background: "#fff", borderRadius: 10 }}>
-          <h2>{step === "set" ? "Setează PIN-ul" : "Autentificare"}</h2>
-          <TextField label="PIN" type="password" value={pin} onChange={(_, v) => setPin(v)} />
-          {step === "set" && (
-            <TextField label="Confirmă PIN" type="password" value={pin2} onChange={(_, v) => setPin2(v)} />
-          )}
-          {error && <MessageBar messageBarType={MessageBarType.error}>{error}</MessageBar>}
-          <PrimaryButton text={step === "set" ? "Setează PIN" : "Autentificare"} onClick={handleSubmit} styles={{ root: { marginTop: 12 } }} />
-          {step === "login" && (
-            <DefaultButton text="Resetare" onClick={() => {
-              if (confirm("Ștergi toate datele?")) {
-                localStorage.clear();
-                window.location.reload();
-              }
-            }} styles={{ root: { marginTop: 10 } }} />
-          )}
-        </div>
+    async function deriveKey(pin) {
+      const keyMaterial = await digestMessage(pin);
+      return window.crypto.subtle.importKey(
+        "raw", keyMaterial, { name: "AES-GCM" }, false, ["encrypt", "decrypt"]
       );
     }
 
-    function ProductList({ products, onEdit, onDelete }) {
-      const columns = [
-        { key: 'nume', name: 'Nume', fieldName: 'nume', minWidth: 100 },
-        { key: 'cant', name: 'Cantitate', fieldName: 'cant', minWidth: 80 },
-        { key: 'pret', name: 'Preț (lei)', fieldName: 'pret', minWidth: 80 },
-        { key: 'note', name: 'Note', fieldName: 'note', minWidth: 100 },
-        {
-          key: 'actions', name: 'Acțiuni', minWidth: 140, onRender: item => (
-            <Stack horizontal tokens={{ childrenGap: 6 }}>
-              <DefaultButton text="Editează" onClick={() => onEdit(item)} />
-              <DefaultButton text="Șterge" onClick={() => onDelete(item)} />
-            </Stack>
-          )
+    async function encryptData(text, pin) {
+      const enc = new TextEncoder();
+      const iv = window.crypto.getRandomValues(new Uint8Array(12));
+      const key = await deriveKey(pin);
+      const encoded = enc.encode(text);
+      const cipher = await window.crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, encoded);
+      return btoa(String.fromCharCode(...iv) + String.fromCharCode(...new Uint8Array(cipher)));
+    }
+
+    async function decryptData(base64, pin) {
+      const bytes = atob(base64).split('').map(c => c.charCodeAt(0));
+      const iv = new Uint8Array(bytes.slice(0, 12));
+      const data = new Uint8Array(bytes.slice(12));
+      const key = await deriveKey(pin);
+      const decrypted = await window.crypto.subtle.decrypt({ name: "AES-GCM", iv }, key, data);
+      return new TextDecoder().decode(decrypted);
+    }
+
+    // --- App Logic
+    const pinScreen = document.getElementById("pinScreen");
+    const appScreen = document.getElementById("appScreen");
+    const pinInput = document.getElementById("pinInput");
+    const pinMessage = document.getElementById("pinMessage");
+
+    let appPIN = "";
+    let products = [];
+
+    async function handlePin() {
+      const enteredPIN = pinInput.value.trim();
+      if (enteredPIN.length < 4) return alert("PIN prea scurt!");
+
+      const savedHash = localStorage.getItem("pin_hash");
+
+      const hash = await digestMessage(enteredPIN);
+      const hashStr = Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+
+      if (!savedHash) {
+        localStorage.setItem("pin_hash", hashStr);
+        appPIN = enteredPIN;
+        loadApp();
+      } else if (hashStr === savedHash) {
+        appPIN = enteredPIN;
+        loadApp();
+      } else {
+        alert("PIN incorect!");
+      }
+    }
+
+    async function loadApp() {
+      pinScreen.classList.add("hidden");
+      appScreen.classList.remove("hidden");
+      const encrypted = localStorage.getItem("products");
+      if (encrypted) {
+        try {
+          const data = await decryptData(encrypted, appPIN);
+          products = JSON.parse(data);
+        } catch (e) {
+          alert("Eroare de criptare!");
         }
-      ];
-      return <DetailsList items={products} columns={columns} />;
-    }
-
-    function ProductForm({ product, onSave, onCancel }) {
-      const [nume, setNume] = useState(product?.nume || "");
-      const [cant, setCant] = useState(product?.cant || "");
-      const [pret, setPret] = useState(product?.pret || "");
-      const [note, setNote] = useState(product?.note || "");
-      const [error, setError] = useState("");
-
-      function save() {
-        if (!nume || !cant || !pret) {
-          setError("Toate câmpurile sunt obligatorii.");
-          return;
-        }
-        onSave({
-          id: product?.id || Date.now(),
-          nume, cant: +cant, pret: +pret, note
-        });
       }
-
-      return (
-        <Stack tokens={{ childrenGap: 10 }}>
-          <TextField label="Nume" value={nume} onChange={(_, v) => setNume(v)} required />
-          <TextField label="Cantitate" value={cant} onChange={(_, v) => setCant(v)} type="number" required />
-          <TextField label="Preț" value={pret} onChange={(_, v) => setPret(v)} type="number" required />
-          <TextField label="Note" value={note} onChange={(_, v) => setNote(v)} />
-          {error && <MessageBar messageBarType={MessageBarType.error}>{error}</MessageBar>}
-          <Stack horizontal tokens={{ childrenGap: 8 }}>
-            <PrimaryButton text="Salvează" onClick={save} />
-            <DefaultButton text="Renunță" onClick={onCancel} />
-          </Stack>
-        </Stack>
-      );
+      renderProducts();
     }
 
-    function ThemeSwitcher({ theme, setTheme }) {
-      return (
-        <Dropdown
-          label="Temă"
-          selectedKey={theme}
-          options={[{ key: 'light', text: 'Light' }, { key: 'dark', text: 'Dark' }]}
-          onChange={(_, o) => {
-            setTheme(o.key);
-            saveTheme(o.key);
-          }}
-          styles={{ dropdown: { width: 100 } }}
-        />
-      );
+    async function saveProducts() {
+      const data = JSON.stringify(products);
+      const encrypted = await encryptData(data, appPIN);
+      localStorage.setItem("products", encrypted);
     }
 
-    function MainApp({ pin, onLogout }) {
-      const [products, setProducts] = useState([]);
-      const [editing, setEditing] = useState(null);
-      const [formVisible, setFormVisible] = useState(false);
-      const [theme, setTheme] = useState(getTheme());
-
-      useEffect(() => {
-        saveTheme(theme);
-        const raw = localStorage.getItem(DATA_KEY);
-        if (raw) {
-          const data = decryptData(raw, pin);
-          if (data) setProducts(data);
-        }
-      }, [pin]);
-
-      function saveList(newList) {
-        setProducts(newList);
-        localStorage.setItem(DATA_KEY, encryptData(newList, pin));
-      }
-
-      function handleSave(product) {
-        const updated = editing
-          ? products.map(p => p.id === product.id ? product : p)
-          : [...products, product];
-        saveList(updated);
-        setEditing(null);
-        setFormVisible(false);
-      }
-
-      function handleDelete(product) {
-        const rest = products.filter(p => p.id !== product.id);
-        saveList(rest);
-      }
-
-      return (
-        <div style={{ maxWidth: 800, margin: "40px auto", padding: 20, background: "#fff", borderRadius: 12 }}>
-          <Stack horizontal horizontalAlign="space-between">
-            <h2>Inventar Produse</h2>
-            <ThemeSwitcher theme={theme} setTheme={setTheme} />
-          </Stack>
-          <PrimaryButton text="Adaugă produs" onClick={() => { setEditing(null); setFormVisible(true); }} />
-          {formVisible && (
-            <ProductForm
-              product={editing}
-              onSave={handleSave}
-              onCancel={() => { setEditing(null); setFormVisible(false); }}
-            />
-          )}
-          <ProductList products={products} onEdit={p => { setEditing(p); setFormVisible(true); }} onDelete={handleDelete} />
-          <DefaultButton text="Deconectare" onClick={onLogout} styles={{ root: { marginTop: 20 } }} />
-        </div>
-      );
+    function renderProducts() {
+      const container = document.getElementById("productList");
+      container.innerHTML = "";
+      products.forEach((p, i) => {
+        const div = document.createElement("div");
+        div.className = "product";
+        div.innerHTML = `
+          <b>${p.name}</b> — ${p.qty} buc x ${p.price} RON
+          <br><i>${p.note || ""}</i>
+          <div class="actions">
+            <fluent-button appearance="outline" onclick="editProduct(${i})">Editează</fluent-button>
+            <fluent-button appearance="stealth" onclick="deleteProduct(${i})">Șterge</fluent-button>
+          </div>
+        `;
+        container.appendChild(div);
+      });
     }
 
-    function App() {
-      const [pin, setPin] = useState(null);
-      return pin
-        ? <MainApp pin={pin} onLogout={() => setPin(null)} />
-        : <AuthScreen onAuth={setPin} />;
+    async function addProduct() {
+      const name = document.getElementById("name").value;
+      const qty = parseInt(document.getElementById("qty").value);
+      const price = parseFloat(document.getElementById("price").value);
+      const note = document.getElementById("note").value;
+
+      if (!name || isNaN(qty) || isNaN(price)) return alert("Completează toate câmpurile!");
+
+      products.push({ name, qty, price, note });
+      await saveProducts();
+      renderProducts();
+
+      document.getElementById("name").value = "";
+      document.getElementById("qty").value = "";
+      document.getElementById("price").value = "";
+      document.getElementById("note").value = "";
     }
 
-    createRoot(document.getElementById("root")).render(<App />);
+    async function deleteProduct(i) {
+      if (!confirm("Ștergi produsul?")) return;
+      products.splice(i, 1);
+      await saveProducts();
+      renderProducts();
+    }
+
+    function editProduct(i) {
+      const p = products[i];
+      document.getElementById("name").value = p.name;
+      document.getElementById("qty").value = p.qty;
+      document.getElementById("price").value = p.price;
+      document.getElementById("note").value = p.note;
+      products.splice(i, 1);
+    }
   </script>
 </body>
 </html>
